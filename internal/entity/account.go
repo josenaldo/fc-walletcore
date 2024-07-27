@@ -9,10 +9,11 @@ import (
 
 type Account struct {
 	ID        string
-	Client    *Client
-	Balance   float64
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	Client  *Client
+	Balance float64
 }
 
 func NewAccount(client *Client) (*Account, error) {

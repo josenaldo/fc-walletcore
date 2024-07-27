@@ -9,20 +9,24 @@ import (
 
 type Client struct {
 	ID        string
-	Name      string
-	Email     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	Name     string
+	Email    string
+	Accounts []*Account
 }
 
 func NewClient(name, email string) (*Client, error) {
 
 	client := &Client{
 		ID:        uuid.NewString(),
-		Name:      name,
-		Email:     email,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+
+		Name:     name,
+		Email:    email,
+		Accounts: []*Account{},
 	}
 
 	err := client.Validate()
@@ -62,5 +66,18 @@ func (c *Client) Update(name, email string) error {
 		return error
 	}
 
+	return nil
+}
+
+func (c *Client) AddAccount(account *Account) error {
+	if account == nil {
+		return errors.New("account is required")
+	}
+
+	if account.Client.ID != c.ID {
+		return errors.New("account must belong to the client")
+	}
+
+	c.Accounts = append(c.Accounts, account)
 	return nil
 }
