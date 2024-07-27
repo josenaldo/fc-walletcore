@@ -96,9 +96,11 @@ func TestCreateNewTransactionWithNegativeAmount(t *testing.T) {
 func TestCreateNewTransactionWithInsufficientFunds(t *testing.T) {
 	// Arrange - Given
 	setupTransactionTest()
+	accountJohn.Credit(100)
+	accountJane.Credit(50)
 
 	// Act - When
-	transaction, err := NewTransaction(accountJohn, accountJane, 25)
+	transaction, err := NewTransaction(accountJohn, accountJane, 200)
 
 	// Assert - Then
 	assert.Error(t, err, ErrorInsufficientFunds)
