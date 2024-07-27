@@ -10,18 +10,13 @@ var (
 	client *Client
 )
 
-func TestMain(m *testing.M) {
-	// Setup
-	client, _ = NewClient("Zé Galinha", "t@t.com")
-
-	// Run tests
-	m.Run()
-
-	// Teardown
+func setupAccountTest() {
+	client, _ = NewClient("Zé Galinha", "ze@galinha.com")
 }
 
 func TestCreateNewAccount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 
 	// Act - When
 	account, err := NewAccount(client)
@@ -38,18 +33,19 @@ func TestCreateNewAccount(t *testing.T) {
 
 func TestCreateNewAccountWithEmptyClient(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 
 	// Act - When
 	account, err := NewAccount(nil)
 
 	// Assert - Then
-	assert.NotNil(t, err)
-	assert.Nil(t, account)
 	assert.Error(t, err, ErrorClientIsRequired)
+	assert.Nil(t, account)
 }
 
 func TestCreditAccount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 
 	// Act - When
@@ -62,6 +58,7 @@ func TestCreditAccount(t *testing.T) {
 
 func TestCreditAccountWithNegativeAmount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 
 	// Act - When
@@ -74,6 +71,7 @@ func TestCreditAccountWithNegativeAmount(t *testing.T) {
 
 func TestDebitAccount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 	account.Credit(100)
 
@@ -87,6 +85,7 @@ func TestDebitAccount(t *testing.T) {
 
 func TestDebitAccountWithNegativeAmount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 
 	// Act - When
@@ -99,6 +98,7 @@ func TestDebitAccountWithNegativeAmount(t *testing.T) {
 
 func TestDebitAccountWithInsufficientFunds(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 	account.Credit(100)
 
@@ -112,6 +112,7 @@ func TestDebitAccountWithInsufficientFunds(t *testing.T) {
 
 func TestDebitAccountWithZeroAmount(t *testing.T) {
 	// Arrange - Given
+	setupAccountTest()
 	account, _ := NewAccount(client)
 	account.Credit(100)
 

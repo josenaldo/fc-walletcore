@@ -36,6 +36,8 @@ func NewAccount(client *Client) (*Account, error) {
 		return nil, err
 	}
 
+	client.AddAccount(account)
+
 	return account, nil
 }
 

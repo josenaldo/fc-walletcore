@@ -6,50 +6,62 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateNewClient(t *testing.T) {
-	// Act - When
+var (
+	name  string
+	email string
+)
 
+func setupClientTest() {
+	name = "Zé Galinha"
+	email = "ze@galinha.com"
+}
+
+func TestCreateNewClient(t *testing.T) {
 	// Arrange - Given
-	client, err := NewClient("Zé Galinha", "ze@galinha.com")
+	setupClientTest()
+
+	// Act - When
+	client, err := NewClient(name, email)
 
 	// Assert - Then
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 	assert.NotEmpty(t, client.ID)
-	assert.Equal(t, "Zé Galinha", client.Name)
-	assert.Equal(t, "ze@galinha.com", client.Email)
+	assert.Equal(t, name, client.Name)
+	assert.Equal(t, email, client.Email)
 }
 
 func TestCreateNewClientWithEmptyName(t *testing.T) {
-	// Act - When
-
 	// Arrange - Given
-	client, err := NewClient("", "ze@galinha.com")
+	setupClientTest()
+
+	// Act - When
+	client, err := NewClient("", email)
 
 	// Assert - Then
-	assert.NotNil(t, err)
-	assert.Nil(t, client)
 	assert.Error(t, err, ErrorClientNameIsRequired)
+	assert.Nil(t, client)
 }
 
 func TestCreateNewClientWithEmptyEmail(t *testing.T) {
-	// Act - When
-
 	// Arrange - Given
-	client, err := NewClient("Zé Galinha", "")
+	setupClientTest()
+
+	// Act - When
+	client, err := NewClient(name, "")
 
 	// Assert - Then
-	assert.NotNil(t, err)
-	assert.Nil(t, client)
 	assert.Error(t, err, ErrorClientEmailIsRequired)
+	assert.Nil(t, client)
 }
 
 func TestUpdateClient(t *testing.T) {
-	// Act - When
-	client, _ := NewClient("Zé Galinha", "ze@galinha.com")
+	// Arrange - Given
+	setupClientTest()
+	client, _ := NewClient(name, email)
 	updatedBefore := client.UpdatedAt
 
-	// Arrange - Given
+	// Act - When
 	err := client.Update("Zé Galinha da Silva", "ze@galo.com")
 
 	// Assert - Then
@@ -60,43 +72,44 @@ func TestUpdateClient(t *testing.T) {
 }
 
 func TestUpdateClientWithEmptyName(t *testing.T) {
-	// Act - When
-	client, _ := NewClient("Zé Galinha", "ze@galinha.com")
+	// Arrange - Given
+	setupClientTest()
+	client, _ := NewClient(name, email)
 	updatedBefore := client.UpdatedAt
 
-	// Arrange - Given
-	err := client.Update("", "ze@galinha.com")
+	// Act - When
+	err := client.Update("", email)
 
 	// Assert - Then
 	assert.Error(t, err, ErrorClientNameIsRequired)
-	assert.Equal(t, "Zé Galinha", client.Name)
-	assert.Equal(t, "ze@galinha.com", client.Email)
+	assert.Equal(t, name, client.Name)
+	assert.Equal(t, email, client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
 }
 
 func TestUpdateClientWithEmptyEmail(t *testing.T) {
-	// Act - When
-	client, _ := NewClient("Zé Galinha", "ze@galinha.com")
+	// Arrange - Given
+	setupClientTest()
+	client, _ := NewClient(name, email)
 	updatedBefore := client.UpdatedAt
 
-	// Arrange - Given
-	err := client.Update("Zé Galinha", "")
+	// Act - When
+	err := client.Update(name, "")
 
 	// Assert - Then
-	assert.NotNil(t, err)
 	assert.Error(t, err, ErrorClientEmailIsRequired)
-	assert.Equal(t, "Zé Galinha", client.Name)
-	assert.Equal(t, "ze@galinha.com", client.Email)
+	assert.Equal(t, name, client.Name)
+	assert.Equal(t, email, client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
 }
 
 func TestAddAccountToClient(t *testing.T) {
 	// Arrange - Given
-	client, _ := NewClient("Zé Galinha", "t@t.com")
-	account, _ := NewAccount(client)
+	setupClientTest()
+	client, _ := NewClient(name, "t@t.com")
 
 	// Act - When
-	err := client.AddAccount(account)
+	account, err := NewAccount(client)
 
 	// Assert - Then
 	assert.Nil(t, err)
@@ -106,7 +119,8 @@ func TestAddAccountToClient(t *testing.T) {
 
 func TestAddAccountToClientWithDifferentClient(t *testing.T) {
 	// Arrange - Given
-	client, _ := NewClient("Zé Galinha", "t@t.com")
+	setupClientTest()
+	client, _ := NewClient(name, "t@t.com")
 	otherClient, _ := NewClient("Zé Pato", "p@p.com")
 	account, _ := NewAccount(otherClient)
 
@@ -114,20 +128,19 @@ func TestAddAccountToClientWithDifferentClient(t *testing.T) {
 	err := client.AddAccount(account)
 
 	// Assert - Then
-	assert.NotNil(t, err)
 	assert.Error(t, err, ErrorAccountBelongsToAnotherClient)
 	assert.Len(t, client.Accounts, 0)
 }
 
 func TestAddAccountToClientWithNilAccount(t *testing.T) {
 	// Arrange - Given
-	client, _ := NewClient("Zé Galinha", "t@t.com")
+	setupClientTest()
+	client, _ := NewClient(name, email)
 
 	// Act - When
 	err := client.AddAccount(nil)
 
 	// Assert - Then
-	assert.NotNil(t, err)
 	assert.Error(t, err, ErrorAccountIsRequired)
 	assert.Len(t, client.Accounts, 0)
 }
