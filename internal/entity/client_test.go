@@ -29,7 +29,7 @@ func TestCreateNewClientWithEmptyName(t *testing.T) {
 	// Assert - Then
 	assert.NotNil(t, err)
 	assert.Nil(t, client)
-	assert.Equal(t, "name cannot be empty", err.Error())
+	assert.Error(t, err, ErrorClientNameIsRequired)
 }
 
 func TestCreateNewClientWithEmptyEmail(t *testing.T) {
@@ -41,7 +41,7 @@ func TestCreateNewClientWithEmptyEmail(t *testing.T) {
 	// Assert - Then
 	assert.NotNil(t, err)
 	assert.Nil(t, client)
-	assert.Equal(t, "email cannot be empty", err.Error())
+	assert.Error(t, err, ErrorClientEmailIsRequired)
 }
 
 func TestUpdateClient(t *testing.T) {
@@ -68,7 +68,7 @@ func TestUpdateClientWithEmptyName(t *testing.T) {
 	err := client.Update("", "ze@galinha.com")
 
 	// Assert - Then
-	assert.Error(t, err, "name cannot be empty")
+	assert.Error(t, err, ErrorClientNameIsRequired)
 	assert.Equal(t, "Zé Galinha", client.Name)
 	assert.Equal(t, "ze@galinha.com", client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
@@ -84,7 +84,7 @@ func TestUpdateClientWithEmptyEmail(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Equal(t, "email cannot be empty", err.Error())
+	assert.Error(t, err, ErrorClientEmailIsRequired)
 	assert.Equal(t, "Zé Galinha", client.Name)
 	assert.Equal(t, "ze@galinha.com", client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
@@ -115,7 +115,7 @@ func TestAddAccountToClientWithDifferentClient(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Error(t, err, "account client must be the same as the client")
+	assert.Error(t, err, ErrorAccountBelongsToAnotherClient)
 	assert.Len(t, client.Accounts, 0)
 }
 
@@ -128,6 +128,6 @@ func TestAddAccountToClientWithNilAccount(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Error(t, err, "account is required")
+	assert.Error(t, err, ErrorAccountIsRequired)
 	assert.Len(t, client.Accounts, 0)
 }

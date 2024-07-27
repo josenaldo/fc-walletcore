@@ -7,6 +7,13 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	ErrorClientNameIsRequired          = errors.New("client name is required")
+	ErrorClientEmailIsRequired         = errors.New("client email is required")
+	ErrorAccountIsRequired             = errors.New("account is required")
+	ErrorAccountBelongsToAnotherClient = errors.New("account must belong to the client")
+)
+
 type Client struct {
 	ID        string
 	CreatedAt time.Time
@@ -39,11 +46,11 @@ func NewClient(name, email string) (*Client, error) {
 
 func (c *Client) Validate() error {
 	if c.Name == "" {
-		return errors.New("name cannot be empty")
+		return ErrorClientNameIsRequired
 	}
 
 	if c.Email == "" {
-		return errors.New("email cannot be empty")
+		return ErrorClientEmailIsRequired
 	}
 
 	return nil
@@ -71,11 +78,11 @@ func (c *Client) Update(name, email string) error {
 
 func (c *Client) AddAccount(account *Account) error {
 	if account == nil {
-		return errors.New("account is required")
+		return ErrorAccountIsRequired
 	}
 
 	if account.Client.ID != c.ID {
-		return errors.New("account must belong to the client")
+		return ErrorAccountBelongsToAnotherClient
 	}
 
 	c.Accounts = append(c.Accounts, account)

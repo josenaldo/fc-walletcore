@@ -45,7 +45,7 @@ func TestCreateNewAccountWithEmptyClient(t *testing.T) {
 	// Assert - Then
 	assert.NotNil(t, err)
 	assert.Nil(t, account)
-	assert.Equal(t, "client is required", err.Error())
+	assert.Error(t, err, ErrorClientIsRequired)
 }
 
 func TestCreditAccount(t *testing.T) {
@@ -69,7 +69,7 @@ func TestCreditAccountWithNegativeAmount(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Equal(t, "amount must be greater than 0", err.Error())
+	assert.Error(t, err, ErrorAmountMustBeGreaterThanZero)
 }
 
 func TestDebitAccount(t *testing.T) {
@@ -94,7 +94,7 @@ func TestDebitAccountWithNegativeAmount(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Equal(t, "amount must be greater than 0", err.Error())
+	assert.Error(t, err, ErrorAmountMustBeGreaterThanZero)
 }
 
 func TestDebitAccountWithInsufficientFunds(t *testing.T) {
@@ -107,7 +107,7 @@ func TestDebitAccountWithInsufficientFunds(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Equal(t, "insufficient funds", err.Error())
+	assert.Error(t, err, ErrorInsufficientFunds)
 }
 
 func TestDebitAccountWithZeroAmount(t *testing.T) {
@@ -120,5 +120,5 @@ func TestDebitAccountWithZeroAmount(t *testing.T) {
 
 	// Assert - Then
 	assert.NotNil(t, err)
-	assert.Equal(t, "amount must be greater than 0", err.Error())
+	assert.Error(t, err, ErrorAmountMustBeGreaterThanZero)
 }
