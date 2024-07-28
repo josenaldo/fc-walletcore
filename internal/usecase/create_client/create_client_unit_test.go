@@ -8,6 +8,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var (
+	defaultName  string
+	defaultEmail string
+)
+
+func init() {
+	defaultName = "Zé Galinha"
+	defaultEmail = "ze@galinha.com"
+}
+
 type ClientGatewayMock struct {
 	mock.Mock
 }
@@ -29,8 +39,8 @@ func TestCreateClientUseCaseExecute(t *testing.T) {
 
 	uc := NewCreateClientUseCase(m)
 	intput := &CreateClientInputDto{
-		Name:  "Zé Galinha",
-		Email: "ze@galinha.com",
+		Name:  defaultName,
+		Email: defaultEmail,
 	}
 
 	// Act - When
@@ -44,4 +54,42 @@ func TestCreateClientUseCaseExecute(t *testing.T) {
 	assert.Equal(t, intput.Email, output.Email)
 	m.AssertExpectations(t)
 	m.AssertNumberOfCalls(t, "Save", 1)
+}
+
+func TestReturnErrorWhenCreateClientWithEmptyName(t *testing.T) {
+	// Arrange - Given
+	m := &ClientGatewayMock{}
+	uc := NewCreateClientUseCase(m)
+	intput := &CreateClientInputDto{
+		Name:  "",
+		Email: defaultEmail,
+	}
+
+	// Act - When
+	output, err := uc.Execute(intput)
+
+	// Assert - Then
+	assert.Error(t, err, entity.ErrorClientNameIsRequired)
+	assert.Nil(t, output)
+	m.AssertExpectations(t)
+	m.AssertNumberOfCalls(t, "Save", 0)
+}
+
+func TestReturnErrorWhenCreateClientWithEmptyEmail(t *testing.T) {
+	// Arrange - Given
+	m := &ClientGatewayMock{}
+	uc := NewCreateClientUseCase(m)
+	intput := &CreateClientInputDto{
+		Name:  defaultName,
+		Email: "",
+	}
+
+	// Act - When
+	output, err := uc.Execute(intput)
+
+	// Assert - Then
+	assert.Error(t, err, entity.ErrorClientEmailIsRequired)
+	assert.Nil(t, output)
+	m.AssertExpectations(t)
+	m.AssertNumberOfCalls(t, "Save", 0)
 }
