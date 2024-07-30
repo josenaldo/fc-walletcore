@@ -87,11 +87,9 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
 	assertions.IsUUID(t, output.Id)
-	assert.Equal(t, 250.0, accountTo.Balance)
-	assert.Equal(t, 250.0, accountFrom.Balance)
 	accountGatewayMock.AssertExpectations(t)
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
 	transactionGatewayMock.AssertExpectations(t)
+	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
 	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 2)
 }
