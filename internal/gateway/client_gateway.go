@@ -8,6 +8,8 @@ import (
 
 var (
 	ErrorClientNotFound = errors.New("client not found")
+	ErrorClientExists   = errors.New("client already exists")
+	ErrorClientSave     = errors.New("error saving client")
 )
 
 type ClientGateway interface {
