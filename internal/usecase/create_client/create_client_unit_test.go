@@ -69,7 +69,7 @@ func TestReturnErrorWhenCreateClientWithEmptyName(t *testing.T) {
 	output, err := uc.Execute(intput)
 
 	// Assert - Then
-	assert.Error(t, err, entity.ErrorClientNameIsRequired)
+	assert.EqualError(t, err, entity.ErrorClientNameIsRequired.Error())
 	assert.Nil(t, output)
 	m.AssertExpectations(t)
 	m.AssertNumberOfCalls(t, "Save", 0)
@@ -88,7 +88,7 @@ func TestReturnErrorWhenCreateClientWithEmptyEmail(t *testing.T) {
 	output, err := uc.Execute(intput)
 
 	// Assert - Then
-	assert.Error(t, err, entity.ErrorClientEmailIsRequired)
+	assert.EqualError(t, err, entity.ErrorClientEmailIsRequired.Error())
 	assert.Nil(t, output)
 	m.AssertExpectations(t)
 	m.AssertNumberOfCalls(t, "Save", 0)

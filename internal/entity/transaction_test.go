@@ -53,7 +53,7 @@ func TestCreateNewTransactionWithEmptyAccountFrom(t *testing.T) {
 	transaction, err := NewTransaction(nil, accountJane, 25)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorTransactionAccountFromIsRequired)
+	assert.EqualError(t, err, ErrorTransactionAccountFromIsRequired.Error())
 	assert.Nil(t, transaction)
 }
 
@@ -65,7 +65,7 @@ func TestCreateNewTransactionWithEmptyAccountTo(t *testing.T) {
 	transaction, err := NewTransaction(accountJohn, nil, 25)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorTransactionAccountToIsRequired)
+	assert.EqualError(t, err, ErrorTransactionAccountToIsRequired.Error())
 	assert.Nil(t, transaction)
 }
 
@@ -77,7 +77,7 @@ func TestCreateNewTransactionWithSameAccount(t *testing.T) {
 	transaction, err := NewTransaction(accountJohn, accountJohn, 25)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorTansactionAccounFromAndAccountToMustBeDifferent)
+	assert.EqualError(t, err, ErrorTansactionAccounFromAndAccountToMustBeDifferent.Error())
 	assert.Nil(t, transaction)
 }
 
@@ -89,7 +89,7 @@ func TestCreateNewTransactionWithNegativeAmount(t *testing.T) {
 	transaction, err := NewTransaction(accountJohn, accountJane, -25)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorTransactionAmountMustBeGreaterThanZero)
+	assert.EqualError(t, err, ErrorTransactionAmountMustBeGreaterThanZero.Error())
 	assert.Nil(t, transaction)
 }
 
@@ -103,6 +103,6 @@ func TestCreateNewTransactionWithInsufficientFunds(t *testing.T) {
 	transaction, err := NewTransaction(accountJohn, accountJane, 200)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorInsufficientFunds)
+	assert.EqualError(t, err, ErrorInsufficientFunds.Error())
 	assert.Nil(t, transaction)
 }

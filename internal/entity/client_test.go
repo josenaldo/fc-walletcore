@@ -39,7 +39,7 @@ func TestCreateNewClientWithEmptyName(t *testing.T) {
 	client, err := NewClient("", email)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorClientNameIsRequired)
+	assert.EqualError(t, err, ErrorClientNameIsRequired.Error())
 	assert.Nil(t, client)
 }
 
@@ -51,7 +51,7 @@ func TestCreateNewClientWithEmptyEmail(t *testing.T) {
 	client, err := NewClient(name, "")
 
 	// Assert - Then
-	assert.Error(t, err, ErrorClientEmailIsRequired)
+	assert.EqualError(t, err, ErrorClientEmailIsRequired.Error())
 	assert.Nil(t, client)
 }
 
@@ -81,7 +81,7 @@ func TestUpdateClientWithEmptyName(t *testing.T) {
 	err := client.Update("", email)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorClientNameIsRequired)
+	assert.EqualError(t, err, ErrorClientNameIsRequired.Error())
 	assert.Equal(t, name, client.Name)
 	assert.Equal(t, email, client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
@@ -97,7 +97,7 @@ func TestUpdateClientWithEmptyEmail(t *testing.T) {
 	err := client.Update(name, "")
 
 	// Assert - Then
-	assert.Error(t, err, ErrorClientEmailIsRequired)
+	assert.EqualError(t, err, ErrorClientEmailIsRequired.Error())
 	assert.Equal(t, name, client.Name)
 	assert.Equal(t, email, client.Email)
 	assert.Equal(t, updatedBefore, client.UpdatedAt)
@@ -128,7 +128,7 @@ func TestAddAccountToClientWithDifferentClient(t *testing.T) {
 	err := client.AddAccount(account)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorAccountBelongsToAnotherClient)
+	assert.EqualError(t, err, ErrorAccountBelongsToAnotherClient.Error())
 	assert.Len(t, client.Accounts, 0)
 }
 
@@ -141,6 +141,6 @@ func TestAddAccountToClientWithNilAccount(t *testing.T) {
 	err := client.AddAccount(nil)
 
 	// Assert - Then
-	assert.Error(t, err, ErrorAccountIsRequired)
+	assert.EqualError(t, err, ErrorAccountIsRequired.Error())
 	assert.Len(t, client.Accounts, 0)
 }
