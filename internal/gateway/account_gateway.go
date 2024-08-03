@@ -13,6 +13,6 @@ var (
 )
 
 type AccountGateway interface {
+	Get(id string) (*entity.Account, error)
 	Save(account *entity.Account) error
-	FindByID(id string) (*entity.Account, error)
 }

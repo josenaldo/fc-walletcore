@@ -38,16 +38,25 @@ func TestClientDbTestSuit(t *testing.T) {
 }
 
 func (s *ClientDbTestSuite) TestSave() {
+	// Arrange - Given
 	client, _ := entity.NewClient("Zé Galinha", "ze@galinha.com")
+
+	// Act - When
 	err := s.ClientDb.Save(client)
+
+	// Assert - Then
 	s.Nil(err)
 }
 
 func (s *ClientDbTestSuite) TestGet() {
+	// Arrange - Given
 	client, _ := entity.NewClient("Zé Galinha", "ze@galinha.com")
 	s.ClientDb.Save(client)
 
+	// Act - When
 	clientFromDb, err := s.ClientDb.Get(client.ID)
+
+	// Assert - Then
 	s.Nil(err)
 	s.Equal(client.ID, clientFromDb.ID)
 	s.NotNil(clientFromDb.CreatedAt)

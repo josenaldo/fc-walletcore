@@ -32,7 +32,7 @@ func (m *AccountGatewayMock) Save(account *entity.Account) error {
 	return args.Error(0)
 }
 
-func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
+func (m *AccountGatewayMock) Get(id string) (*entity.Account, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -68,8 +68,8 @@ func setupCreateTransactionUseCase() {
 func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
@@ -89,7 +89,7 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	assertions.IsUUID(t, output.Id)
 	accountGatewayMock.AssertExpectations(t)
 	transactionGatewayMock.AssertExpectations(t)
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 2)
 }
@@ -102,8 +102,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromNotFound(t *te
 		AccountIdTo:   accountTo.ID,
 		Amount:        50,
 	}
-	accountGatewayMock.On("FindByID", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
@@ -115,7 +115,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromNotFound(t *te
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, gateway.ErrorAccountNotFound.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 1)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 1)
 	transactionGatewayMock.AssertNotCalled(t, "Create")
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
 }
@@ -124,8 +124,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToNotFound(t *test
 	// Arrange - Given
 	setupCreateTransactionUseCase()
 
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
@@ -143,7 +143,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToNotFound(t *test
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, gateway.ErrorAccountNotFound.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNotCalled(t, "Create")
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
 }
@@ -151,8 +151,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToNotFound(t *test
 func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromHasInsufficientFunds(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
@@ -170,7 +170,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromHasInsufficien
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, entity.ErrorInsufficientFunds.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNotCalled(t, "Create")
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
 }
@@ -178,8 +178,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromHasInsufficien
 func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromSaveFails(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", accountFrom).Return(gateway.ErrorAccountSaveFailed)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
@@ -197,7 +197,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromSaveFails(t *t
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, gateway.ErrorAccountSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNotCalled(t, "Create")
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 1)
 }
@@ -205,8 +205,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromSaveFails(t *t
 func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToSaveFails(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", accountFrom).Return(nil)
 	accountGatewayMock.On("Save", accountTo).Return(gateway.ErrorAccountSaveFailed)
 
@@ -225,7 +225,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToSaveFails(t *tes
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, gateway.ErrorAccountSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNotCalled(t, "Create")
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 2)
 }
@@ -233,8 +233,8 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToSaveFails(t *tes
 func TestCreateTransactionUseCaseExecuteReturnErrorWhenTransactionCreateFails(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("FindByID", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("FindByID", accountTo.ID).Return(accountTo, nil)
+	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
+	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
 	accountGatewayMock.On("Save", accountFrom).Return(nil)
 	accountGatewayMock.On("Save", accountTo).Return(nil)
 
@@ -253,7 +253,7 @@ func TestCreateTransactionUseCaseExecuteReturnErrorWhenTransactionCreateFails(t 
 	assert.Nil(t, output)
 	assert.NotNil(t, err)
 	assert.EqualError(t, err, gateway.ErrorTransactionSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "FindByID", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
 }
