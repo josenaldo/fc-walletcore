@@ -7,16 +7,16 @@ import (
 )
 
 type ClientDb struct {
-	Db *sql.DB
+	DB *sql.DB
 }
 
 func NewClientDb(db *sql.DB) *ClientDb {
-	return &ClientDb{Db: db}
+	return &ClientDb{DB: db}
 }
 
 func (c *ClientDb) Get(id string) (*entity.Client, error) {
 	client := &entity.Client{}
-	stmt, err := c.Db.Prepare("SELECT id, created_at, updated_at, name, email FROM clients WHERE id = ?")
+	stmt, err := c.DB.Prepare("SELECT id, created_at, updated_at, name, email FROM clients WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (c *ClientDb) Get(id string) (*entity.Client, error) {
 }
 
 func (c *ClientDb) Save(client *entity.Client) error {
-	stmt, err := c.Db.Prepare("INSERT INTO clients (id, created_at, updated_at, name, email) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := c.DB.Prepare("INSERT INTO clients (id, created_at, updated_at, name, email) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}

@@ -11,10 +11,9 @@ import (
 
 type AccountDbTestSuite struct {
 	suite.Suite
-	AccountDb *AccountDB
-	ClientDb  *ClientDb
-	Client    *entity.Client
 	db        *sql.DB
+	AccountDb *AccountDB
+	client    *entity.Client
 }
 
 func (s *AccountDbTestSuite) SetupSuite() {
@@ -41,18 +40,18 @@ func (s *AccountDbTestSuite) SetupSuite() {
 		client_id VARCHAR(255)
 		)`)
 
-	s.ClientDb = NewClientDb(db)
 	s.AccountDb = NewAccountDB(db)
 
-	s.Client, _ = entity.NewClient("Zé Galinha", "ze@galinha.com")
-	s.ClientDb.Save(s.Client)
+	s.client, _ = entity.NewClient("Zé Galinha", "ze@galinha.com")
+	s.db.Exec("INSERT INTO clients (id, created_at, updated_at, name, email) VALUES (?, ?, ?, ?, ?)",
+		s.client.ID, s.client.CreatedAt, s.client.UpdatedAt, s.client.Name, s.client.Email)
 
 }
 
 func (s *AccountDbTestSuite) TearDownSuite() {
 	defer s.db.Close()
-
 	s.db.Exec("DROP TABLE accounts")
+	s.db.Exec("DROP TABLE clients")
 }
 
 func TestAccountDbTestSuit(t *testing.T) {
@@ -61,7 +60,7 @@ func TestAccountDbTestSuit(t *testing.T) {
 
 func (s *AccountDbTestSuite) TestSave() {
 	// Arrange - Given
-	account, _ := entity.NewAccount(s.Client)
+	account, _ := entity.NewAccount(s.client)
 
 	// Act - When
 	err := s.AccountDb.Save(account)
@@ -72,7 +71,7 @@ func (s *AccountDbTestSuite) TestSave() {
 
 func (s *AccountDbTestSuite) TestGet() {
 	// Arrange - Given
-	account, _ := entity.NewAccount(s.Client)
+	account, _ := entity.NewAccount(s.client)
 	s.AccountDb.Save(account)
 
 	// Act - When
