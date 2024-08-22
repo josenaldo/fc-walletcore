@@ -3,6 +3,7 @@ package createtransaction
 import (
 	"github.com/josenaldo/fc-walletcore/internal/entity"
 	"github.com/josenaldo/fc-walletcore/internal/gateway"
+	"github.com/josenaldo/fc-walletcore/pkg/events"
 )
 
 type CreateTransactionInputDto struct {
@@ -16,24 +17,28 @@ type CreateTransactionOutputDto struct {
 }
 
 type CreateTransactionUseCase struct {
-	transactionGateway gateway.TransactionGateway
-	accountGateway     gateway.AccountGateway
+	TransactionGateway gateway.TransactionGateway
+	AccountGateway     gateway.AccountGateway
+	EventDispatcher    events.EventDispatcher
+	TransactionCreated events.EventInterface
 }
 
-func NewCreateTransactionUseCase(transactionGateway gateway.TransactionGateway, accountGateway gateway.AccountGateway) *CreateTransactionUseCase {
+func NewCreateTransactionUseCase(transactionGateway gateway.TransactionGateway, accountGateway gateway.AccountGateway, eventDispatcher events.EventDispatcher, transactionCreated events.EventInterface) *CreateTransactionUseCase {
 	return &CreateTransactionUseCase{
-		transactionGateway: transactionGateway,
-		accountGateway:     accountGateway,
+		TransactionGateway: transactionGateway,
+		AccountGateway:     accountGateway,
+		EventDispatcher:    eventDispatcher,
+		TransactionCreated: transactionCreated,
 	}
 }
 
 func (usecase *CreateTransactionUseCase) Execute(input CreateTransactionInputDto) (*CreateTransactionOutputDto, error) {
-	accountFrom, err := usecase.accountGateway.Get(input.AccountIdFrom)
+	accountFrom, err := usecase.AccountGateway.Get(input.AccountIdFrom)
 	if err != nil {
 		return nil, err
 	}
 
-	accountTo, err := usecase.accountGateway.Get(input.AccountIdTo)
+	accountTo, err := usecase.AccountGateway.Get(input.AccountIdTo)
 	if err != nil {
 		return nil, err
 	}
@@ -43,22 +48,27 @@ func (usecase *CreateTransactionUseCase) Execute(input CreateTransactionInputDto
 		return nil, err
 	}
 
-	err = usecase.transactionGateway.Create(transaction)
+	err = usecase.TransactionGateway.Create(transaction)
 	if err != nil {
 		return nil, err
 	}
 
-	err = usecase.accountGateway.Save(accountFrom)
+	err = usecase.AccountGateway.Save(accountFrom)
 	if err != nil {
 		return nil, err
 	}
 
-	err = usecase.accountGateway.Save(accountTo)
+	err = usecase.AccountGateway.Save(accountTo)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CreateTransactionOutputDto{
+	output := &CreateTransactionOutputDto{
 		Id: transaction.ID,
-	}, nil
+	}
+
+	usecase.TransactionCreated.SetPayload(output)
+	usecase.EventDispatcher.Dispatch(usecase.TransactionCreated)
+
+	return output, nil
 }
