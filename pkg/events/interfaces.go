@@ -20,6 +20,9 @@ type EventInterface interface {
 
 	// GetPayload retorna a carga útil do evento.
 	GetPayload() interface{}
+
+	// SetPayload define a carga útil do evento.
+	SetPayload(payload interface{})
 }
 
 // EventHandlerInterface define a interface para um manipulador de eventos.

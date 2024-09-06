@@ -31,6 +31,10 @@ func (e TestEvent) GetPayload() interface{} {
 	return e.Payload
 }
 
+func (e TestEvent) SetPayload(payload interface{}) {
+	e.Payload = payload
+}
+
 type TestEventHandler struct {
 	ID int
 }
@@ -228,6 +232,9 @@ func (suite *EventDispatcherTestSuite) TestEventDispatchIsSuccessful() {
 	// Act - When
 	err = suite.dispatcher.Dispatch(suite.event)
 
+	// Espera para dar tempo às goroutines de serem executadas
+	time.Sleep(100 * time.Millisecond)
+
 	// Assert - Then
 	suite.NoError(err)
 	eventHandler.AssertExpectations(suite.T())
@@ -251,6 +258,9 @@ func (suite *EventDispatcherTestSuite) TestEventDispatchWithMultipleHandlersIsSu
 
 	// Act - When
 	err = suite.dispatcher.Dispatch(suite.event)
+
+	// Espera para dar tempo às goroutines de serem executadas
+	time.Sleep(100 * time.Millisecond)
 
 	// Assert - Then
 	suite.NoError(err)

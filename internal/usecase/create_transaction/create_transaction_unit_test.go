@@ -4,8 +4,10 @@ import (
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
+	"github.com/josenaldo/fc-walletcore/internal/event"
 	"github.com/josenaldo/fc-walletcore/internal/gateway"
 	"github.com/josenaldo/fc-walletcore/internal/utils/assertions"
+	"github.com/josenaldo/fc-walletcore/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -61,8 +63,9 @@ func setupCreateTransactionUseCase() {
 	accountGatewayMock = &AccountGatewayMock{}
 	transactionGatewayMock = &TransactionGatewayMock{}
 
-	usecase = NewCreateTransactionUseCase(transactionGatewayMock, accountGatewayMock)
-
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+	usecase = NewCreateTransactionUseCase(transactionGatewayMock, accountGatewayMock, *dispatcher, event)
 }
 
 func TestCreateTransactionUseCaseExecute(t *testing.T) {
