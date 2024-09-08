@@ -62,7 +62,7 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateAccountUseCase(accountGatewayMock, clientGatewayMock)
-	intput := &CreateAccountInputDto{
+	intput := CreateAccountInputDto{
 		ClientId: "123",
 	}
 
@@ -92,7 +92,7 @@ func TestCreateAccountUseCaseExecuteWhenClientIsNotFound(t *testing.T) {
 	accountGateway := &AccountGatewayMock{}
 
 	uc := NewCreateAccountUseCase(accountGateway, clientGateway)
-	intput := &CreateAccountInputDto{
+	intput := CreateAccountInputDto{
 		ClientId: "123",
 	}
 
