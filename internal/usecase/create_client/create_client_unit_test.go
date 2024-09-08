@@ -38,7 +38,7 @@ func TestCreateClientUseCaseExecute(t *testing.T) {
 	m.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateClientUseCase(m)
-	intput := &CreateClientInputDto{
+	intput := CreateClientInputDto{
 		Name:  defaultName,
 		Email: defaultEmail,
 	}
@@ -60,7 +60,7 @@ func TestReturnErrorWhenCreateClientWithEmptyName(t *testing.T) {
 	// Arrange - Given
 	m := &ClientGatewayMock{}
 	uc := NewCreateClientUseCase(m)
-	intput := &CreateClientInputDto{
+	intput := CreateClientInputDto{
 		Name:  "",
 		Email: defaultEmail,
 	}
@@ -79,7 +79,7 @@ func TestReturnErrorWhenCreateClientWithEmptyEmail(t *testing.T) {
 	// Arrange - Given
 	m := &ClientGatewayMock{}
 	uc := NewCreateClientUseCase(m)
-	intput := &CreateClientInputDto{
+	intput := CreateClientInputDto{
 		Name:  defaultName,
 		Email: "",
 	}
