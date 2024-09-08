@@ -10,7 +10,7 @@ type TransactionDB struct {
 	DB *sql.DB
 }
 
-func NewTransactionDB(db *sql.DB) *TransactionDB {
+func NewTransactionDb(db *sql.DB) *TransactionDB {
 	return &TransactionDB{
 		DB: db,
 	}

@@ -1,10 +1,9 @@
-package createtransaction
+package create_transaction
 
 import (
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
-	"github.com/josenaldo/fc-walletcore/internal/event"
 	"github.com/josenaldo/fc-walletcore/internal/gateway"
 	"github.com/josenaldo/fc-walletcore/internal/utils/assertions"
 	"github.com/josenaldo/fc-walletcore/pkg/events"
@@ -64,8 +63,8 @@ func setupCreateTransactionUseCase() {
 	transactionGatewayMock = &TransactionGatewayMock{}
 
 	dispatcher := events.NewEventDispatcher()
-	event := event.NewTransactionCreated()
-	usecase = NewCreateTransactionUseCase(transactionGatewayMock, accountGatewayMock, *dispatcher, event)
+
+	usecase = NewCreateTransactionUseCase(transactionGatewayMock, accountGatewayMock, *dispatcher)
 }
 
 func TestCreateTransactionUseCaseExecute(t *testing.T) {

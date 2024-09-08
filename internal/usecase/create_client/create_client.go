@@ -1,4 +1,4 @@
-package createclient
+package create_client
 
 import (
 	"time"
@@ -31,8 +31,7 @@ func NewCreateClientUseCase(clientGateway gateway.ClientGateway) *CreateClientUs
 }
 
 func (usecase *CreateClientUseCase) Execute(input *CreateClientInputDto) (*CreateClientOutputDto, error) {
-	
-	
+
 	client, err := entity.NewClient(input.Name, input.Email)
 	if err != nil {
 		return nil, err

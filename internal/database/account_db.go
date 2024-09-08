@@ -10,7 +10,7 @@ type AccountDB struct {
 	DB *sql.DB
 }
 
-func NewAccountDB(db *sql.DB) *AccountDB {
+func NewAccountDb(db *sql.DB) *AccountDB {
 	return &AccountDB{
 		DB: db,
 	}

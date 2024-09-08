@@ -1,7 +1,8 @@
-package createtransaction
+package create_transaction
 
 import (
 	"github.com/josenaldo/fc-walletcore/internal/entity"
+	"github.com/josenaldo/fc-walletcore/internal/event"
 	"github.com/josenaldo/fc-walletcore/internal/gateway"
 	"github.com/josenaldo/fc-walletcore/pkg/events"
 )
@@ -20,20 +21,17 @@ type CreateTransactionUseCase struct {
 	TransactionGateway gateway.TransactionGateway
 	AccountGateway     gateway.AccountGateway
 	EventDispatcher    events.EventDispatcher
-	TransactionCreated events.EventInterface
 }
 
 func NewCreateTransactionUseCase(
 	transactionGateway gateway.TransactionGateway,
 	accountGateway gateway.AccountGateway,
 	eventDispatcher events.EventDispatcher,
-	transactionCreated events.EventInterface,
 ) *CreateTransactionUseCase {
 	return &CreateTransactionUseCase{
 		TransactionGateway: transactionGateway,
 		AccountGateway:     accountGateway,
 		EventDispatcher:    eventDispatcher,
-		TransactionCreated: transactionCreated,
 	}
 }
 
@@ -72,8 +70,10 @@ func (usecase *CreateTransactionUseCase) Execute(input CreateTransactionInputDto
 		Id: transaction.ID,
 	}
 
-	usecase.TransactionCreated.SetPayload(output)
-	usecase.EventDispatcher.Dispatch(usecase.TransactionCreated)
+	event := event.NewTransactionCreated()
+	event.SetPayload(output)
+
+	usecase.EventDispatcher.Dispatch(event)
 
 	return output, nil
 }

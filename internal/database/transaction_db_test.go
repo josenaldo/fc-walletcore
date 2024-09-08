@@ -55,7 +55,7 @@ func (s *TransactionDbTestSuite) SetupSuite() {
 		account_to_id VARCHAR(255)
 		)`)
 
-	s.TransactionDb = NewTransactionDB(db)
+	s.TransactionDb = NewTransactionDb(db)
 
 	s.clientFrom, _ = entity.NewClient("Zé Galinha", "ze@galinha.com")
 	s.db.Exec("INSERT INTO clients (id, created_at, updated_at, name, email) VALUES (?, ?, ?, ?, ?)",

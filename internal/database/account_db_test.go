@@ -40,7 +40,7 @@ func (s *AccountDbTestSuite) SetupSuite() {
 		client_id VARCHAR(255)
 		)`)
 
-	s.AccountDb = NewAccountDB(db)
+	s.AccountDb = NewAccountDb(db)
 
 	s.client, _ = entity.NewClient("Zé Galinha", "ze@galinha.com")
 	s.db.Exec("INSERT INTO clients (id, created_at, updated_at, name, email) VALUES (?, ?, ?, ?, ?)",

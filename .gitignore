@@ -25,3 +25,5 @@ go.work.sum
 .env
 
 codealike.json
+
+.docker
