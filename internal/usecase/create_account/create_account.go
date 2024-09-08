@@ -41,11 +41,6 @@ func (usecase *CreateAccountUseCase) Execute(input CreateAccountInputDto) (*Crea
 		return nil, err
 	}
 
-	err = usecase.ClientGateway.Save(client)
-	if err != nil {
-		return nil, err
-	}
-
 	return &CreateAccountOutputDto{
 		ID: account.ID,
 	}, nil

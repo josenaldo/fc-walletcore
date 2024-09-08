@@ -1,0 +1,30 @@
+
+# Creating Ze Galinha
+POST http://localhost:8000/clients HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Ze Galinha",
+  "email": "ze@galinha.com"
+}
+
+###
+
+# Creating Maria Galinha
+POST http://localhost:8000/clients HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Maria Galinha",
+  "email": "maria@galinha.com"
+}
+
+###
+
+# Creating Account para Ze Galinha
+POST http://localhost:8000/accounts HTTP/1.1'
+Content-Type: application/json
+
+{
+  "ClientId": "9fc6beba-b1bd-45fe-82f7-ca16d265747a"
+}
