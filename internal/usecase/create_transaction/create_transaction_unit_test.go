@@ -41,6 +41,11 @@ func (m *AccountGatewayMock) Get(id string) (*entity.Account, error) {
 	return args.Get(0).(*entity.Account), args.Error(1)
 }
 
+func (m *AccountGatewayMock) Update(account *entity.Account) error {
+	args := m.Called(account)
+	return args.Error(0)
+}
+
 type TransactionGatewayMock struct {
 	mock.Mock
 }
@@ -72,7 +77,7 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	setupCreateTransactionUseCase()
 	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
 	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", mock.Anything).Return(nil)
+	accountGatewayMock.On("Update", mock.Anything).Return(nil)
 
 	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
 
@@ -93,7 +98,10 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	transactionGatewayMock.AssertExpectations(t)
 	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
 	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 2)
+	accountGatewayMock.AssertNumberOfCalls(t, "Update", 2)
+
+	assert.Equal(t, accountFrom.Balance, 250.0)
+	assert.Equal(t, accountTo.Balance, 250.0)
 }
 
 func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromNotFound(t *testing.T) {

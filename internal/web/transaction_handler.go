@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_transaction"
@@ -21,12 +22,14 @@ func (h *WebTransactionHandler) CreateTransaction(w http.ResponseWriter, r *http
 	var dto create_transaction.CreateTransactionInputDto
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	output, err := h.CreateTransactionUseCase.Execute(dto)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -34,6 +37,7 @@ func (h *WebTransactionHandler) CreateTransaction(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(output)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

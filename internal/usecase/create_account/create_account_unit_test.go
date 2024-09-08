@@ -45,6 +45,11 @@ func (m *AccountGatewayMock) Get(id string) (*entity.Account, error) {
 	return args.Get(0).(*entity.Account), args.Error(1)
 }
 
+func (m *AccountGatewayMock) Update(account *entity.Account) error {
+
+	return nil
+}
+
 func TestCreateAccountUseCaseExecute(t *testing.T) {
 	// Arrange - Given
 	clientGatewayMock := &ClientGatewayMock{}
@@ -56,7 +61,6 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 		Name:      "Zé Galinha",
 		Email:     "ze@galinha.com",
 	}, nil)
-	clientGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	accountGatewayMock := &AccountGatewayMock{}
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
@@ -78,7 +82,6 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 
 	clientGatewayMock.AssertExpectations(t)
 	clientGatewayMock.AssertNumberOfCalls(t, "Get", 1)
-	clientGatewayMock.AssertNumberOfCalls(t, "Save", 1)
 	accountGatewayMock.AssertExpectations(t)
 	accountGatewayMock.AssertNumberOfCalls(t, "Save", 1)
 }

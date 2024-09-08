@@ -8,9 +8,9 @@ import (
 )
 
 type CreateTransactionInputDto struct {
-	AccountIdFrom string
-	AccountIdTo   string
-	Amount        float64
+	AccountIdFrom string  `json:"account_id_from"`
+	AccountIdTo   string  `json:"account_id_to"`
+	Amount        float64 `json:"amount"`
 }
 
 type CreateTransactionOutputDto struct {
@@ -56,12 +56,12 @@ func (usecase *CreateTransactionUseCase) Execute(input CreateTransactionInputDto
 		return nil, err
 	}
 
-	err = usecase.AccountGateway.Save(accountFrom)
+	err = usecase.AccountGateway.Update(accountFrom)
 	if err != nil {
 		return nil, err
 	}
 
-	err = usecase.AccountGateway.Save(accountTo)
+	err = usecase.AccountGateway.Update(accountTo)
 	if err != nil {
 		return nil, err
 	}

@@ -88,3 +88,32 @@ func (s *AccountDbTestSuite) TestGet() {
 	s.Equal(account.Client.Email, accountFromDb.Client.Email)
 
 }
+
+func (s *AccountDbTestSuite) TestGetNotFound() {
+	// Arrange - Given
+	account, _ := entity.NewAccount(s.client)
+	s.AccountDb.Save(account)
+
+	// Act - When
+	accountFromDb, err := s.AccountDb.Get("non-existing-id")
+
+	// Assert - Then
+	s.Nil(accountFromDb)
+	s.NotNil(err)
+}
+
+func (s *AccountDbTestSuite) TestUpdate() {
+	// Arrange - Given
+	account, _ := entity.NewAccount(s.client)
+	s.AccountDb.Save(account)
+
+	// Act - When
+	account.Credit(100)
+	err := s.AccountDb.Update(account)
+
+	// Assert - Then
+	s.Nil(err)
+
+	accountFromDb, _ := s.AccountDb.Get(account.ID)
+	s.Equal(100.0, accountFromDb.Balance)
+}

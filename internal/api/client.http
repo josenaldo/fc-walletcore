@@ -26,5 +26,18 @@ POST http://localhost:8000/accounts HTTP/1.1'
 Content-Type: application/json
 
 {
-  "ClientId": "9fc6beba-b1bd-45fe-82f7-ca16d265747a"
+  "client_id": "ba76e8ca-c853-40b6-b562-178cfd794fc0"
 }
+
+###
+
+# Creating a transaction from Maria Galinha to Ze Galinha
+POST http://localhost:8000/transactions HTTP/1.1
+Content-Type: application/json
+
+{
+  "account_id_from": "b9f6de14-e79f-41d3-887f-d21e9c32fc28",
+  "account_id_to": "d084b021-a469-4376-8d29-3d5f997d104b",
+  "amount": 100
+}
+
