@@ -6,53 +6,15 @@ import (
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
 	"github.com/josenaldo/fc-walletcore/internal/gateway"
-	"github.com/josenaldo/fc-walletcore/internal/utils/assertions"
+	"github.com/josenaldo/fc-walletcore/internal/testutils"
+	"github.com/josenaldo/fc-walletcore/internal/testutils/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-type ClientGatewayMock struct {
-	mock.Mock
-}
-
-func (m *ClientGatewayMock) Get(id string) (*entity.Client, error) {
-	args := m.Called(id)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*entity.Client), args.Error(1)
-}
-
-func (m *ClientGatewayMock) Save(client *entity.Client) error {
-	args := m.Called(client)
-	return args.Error(0)
-}
-
-type AccountGatewayMock struct {
-	mock.Mock
-}
-
-func (m *AccountGatewayMock) Save(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-func (m *AccountGatewayMock) Get(id string) (*entity.Account, error) {
-	args := m.Called(id)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*entity.Account), args.Error(1)
-}
-
-func (m *AccountGatewayMock) Update(account *entity.Account) error {
-
-	return nil
-}
-
 func TestCreateAccountUseCaseExecute(t *testing.T) {
 	// Arrange - Given
-	clientGatewayMock := &ClientGatewayMock{}
+	clientGatewayMock := &mocks.ClientGatewayMock{}
 
 	clientGatewayMock.On("Get", mock.Anything).Return(&entity.Client{
 		ID:        "321",
@@ -62,7 +24,7 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 		Email:     "ze@galinha.com",
 	}, nil)
 
-	accountGatewayMock := &AccountGatewayMock{}
+	accountGatewayMock := &mocks.AccountGatewayMock{}
 	accountGatewayMock.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateAccountUseCase(accountGatewayMock, clientGatewayMock)
@@ -78,7 +40,7 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 	assert.NotNil(t, output)
 	assert.NotEmpty(t, output.ID)
 
-	assertions.IsUUID(t, output.ID)
+	testutils.IsUUID(t, output.ID)
 
 	clientGatewayMock.AssertExpectations(t)
 	clientGatewayMock.AssertNumberOfCalls(t, "Get", 1)
@@ -88,11 +50,11 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 
 func TestCreateAccountUseCaseExecuteWhenClientIsNotFound(t *testing.T) {
 	// Arrange - Given
-	clientGateway := &ClientGatewayMock{}
+	clientGateway := &mocks.ClientGatewayMock{}
 
 	clientGateway.On("Get", mock.Anything).Return(nil, gateway.ErrorClientNotFound)
 
-	accountGateway := &AccountGatewayMock{}
+	accountGateway := &mocks.AccountGatewayMock{}
 
 	uc := NewCreateAccountUseCase(accountGateway, clientGateway)
 	intput := CreateAccountInputDto{

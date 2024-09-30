@@ -13,6 +13,7 @@ var (
 )
 
 type ClientGateway interface {
+	GetAll() ([]*entity.Client, error)
 	Get(id string) (*entity.Client, error)
 	Save(client *entity.Client) error
 }

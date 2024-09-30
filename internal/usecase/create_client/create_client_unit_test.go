@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
+	"github.com/josenaldo/fc-walletcore/internal/testutils/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -18,23 +19,9 @@ func init() {
 	defaultEmail = "ze@galinha.com"
 }
 
-type ClientGatewayMock struct {
-	mock.Mock
-}
-
-func (m *ClientGatewayMock) Get(id string) (*entity.Client, error) {
-	args := m.Called(id)
-	return args.Get(0).(*entity.Client), args.Error(1)
-}
-
-func (m *ClientGatewayMock) Save(client *entity.Client) error {
-	args := m.Called(client)
-	return args.Error(0)
-}
-
 func TestCreateClientUseCaseExecute(t *testing.T) {
 	// Arrange - Given
-	m := &ClientGatewayMock{}
+	m := &mocks.ClientGatewayMock{}
 	m.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateClientUseCase(m)
@@ -58,7 +45,7 @@ func TestCreateClientUseCaseExecute(t *testing.T) {
 
 func TestReturnErrorWhenCreateClientWithEmptyName(t *testing.T) {
 	// Arrange - Given
-	m := &ClientGatewayMock{}
+	m := &mocks.ClientGatewayMock{}
 	uc := NewCreateClientUseCase(m)
 	intput := CreateClientInputDto{
 		Name:  "",
@@ -77,7 +64,7 @@ func TestReturnErrorWhenCreateClientWithEmptyName(t *testing.T) {
 
 func TestReturnErrorWhenCreateClientWithEmptyEmail(t *testing.T) {
 	// Arrange - Given
-	m := &ClientGatewayMock{}
+	m := &mocks.ClientGatewayMock{}
 	uc := NewCreateClientUseCase(m)
 	intput := CreateClientInputDto{
 		Name:  defaultName,

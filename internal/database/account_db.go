@@ -4,35 +4,47 @@ import (
 	"database/sql"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
+	"github.com/josenaldo/fc-walletcore/internal/gateway"
 )
 
 type AccountDB struct {
-	DB *sql.DB
+	*BaseRepository
 }
 
 func NewAccountDb(db *sql.DB) *AccountDB {
 	return &AccountDB{
-		DB: db,
+		BaseRepository: &BaseRepository{
+			db: db,
+		},
 	}
 }
 
-func (db *AccountDB) Get(id string) (*entity.Account, error) {
+func NewAccountDbWithTx(tx *sql.Tx) *AccountDB {
+	return &AccountDB{
+		BaseRepository: &BaseRepository{
+			tx: tx,
+		},
+	}
+}
 
-	stmt, err := db.DB.Prepare(`
-	SELECT 
-		a.id, 
-		a.created_at, 
-		a.updated_at, 		
-		a.balance, 
-		c.id, 
-		c.created_at, 
-		c.updated_at, 
-		c.name, 
-		c.email
-	FROM 
-		accounts a INNER JOIN  clients c ON a.client_id = c.id
-	WHERE 
-		a.id = ?`)
+func (repo *AccountDB) Get(id string) (*entity.Account, error) {
+	query := `
+		SELECT 
+			a.id, 
+			a.created_at, 
+			a.updated_at, 		
+			a.balance, 
+			c.id, 
+			c.created_at, 
+			c.updated_at, 
+			c.name, 
+			c.email
+		FROM 
+			accounts a INNER JOIN  clients c ON a.client_id = c.id
+		WHERE 
+			a.id = ?`
+
+	stmt, err := repo.prepareQuery(query)
 	if err != nil {
 		return nil, err
 	}
@@ -55,18 +67,23 @@ func (db *AccountDB) Get(id string) (*entity.Account, error) {
 		&client.Email)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, gateway.ErrorAccountNotFound
+		}
+
 		return nil, err
 	}
 
 	return &account, nil
 }
 
-func (db *AccountDB) Save(account *entity.Account) error {
-	insertQuery := `
+func (repo *AccountDB) Save(account *entity.Account) error {
+	query := `
 		INSERT 
 			INTO accounts (id, created_at, updated_at, balance, client_id) 
-			VALUES (?, ?, ?, ?, ?)`
-	stmt, err := db.DB.Prepare(insertQuery)
+			VALUES (?, ?, ?, ?, ?)
+	`
+	stmt, err := repo.prepareQuery(query)
 	if err != nil {
 		return err
 	}
@@ -80,12 +97,13 @@ func (db *AccountDB) Save(account *entity.Account) error {
 	return nil
 }
 
-func (db *AccountDB) Update(account *entity.Account) error {
-	updateQuery := `
+func (repo *AccountDB) UpdateBalance(account *entity.Account) error {
+	query := `
 		UPDATE accounts 
 			SET balance = ?, updated_at = ? 
 			WHERE id = ?`
-	stmt, err := db.DB.Prepare(updateQuery)
+
+	stmt, err := repo.prepareQuery(query)
 	if err != nil {
 		return err
 	}

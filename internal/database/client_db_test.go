@@ -1,36 +1,29 @@
 package database
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
+	"github.com/josenaldo/fc-walletcore/internal/testutils"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/suite"
 )
 
 type ClientDbTestSuite struct {
 	suite.Suite
-	ClientDb *ClientDb
-	db       *sql.DB
+	ClientDb  *ClientDb
+	testUtils *testutils.TestDb
 }
 
 func (s *ClientDbTestSuite) SetupSuite() {
-	db, err := sql.Open("sqlite3", ":memory:")
-	s.Nil(err)
+	s.testUtils = testutils.SetupTestDB(s.T())
 
-	s.db = db
-
-	db.Exec("CREATE TABLE clients (id VARCHAR(255) PRIMARY KEY, created_at DATETIME, updated_at DATETIME, name VARCHAR(255), email VARCHAR(255))")
-
-	s.ClientDb = NewClientDb(db)
+	s.ClientDb = NewClientDb(s.testUtils.Db)
 
 }
 
 func (s *ClientDbTestSuite) TearDownSuite() {
-	defer s.db.Close()
-
-	s.db.Exec("DROP TABLE clients")
+	s.testUtils.TearDownTestDB()
 }
 
 func TestClientDbTestSuit(t *testing.T) {

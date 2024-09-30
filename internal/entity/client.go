@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrorClientNameIsRequired          = errors.New("client name is required")
-	ErrorClientEmailIsRequired         = errors.New("client email is required")
+	ErrorClientEmailIsRequired         = errors.New("client email is required")	
 	ErrorAccountIsRequired             = errors.New("account is required")
 	ErrorAccountBelongsToAnotherClient = errors.New("account must belong to the client")
 )

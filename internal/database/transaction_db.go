@@ -7,21 +7,32 @@ import (
 )
 
 type TransactionDB struct {
-	DB *sql.DB
+	*BaseRepository
 }
 
 func NewTransactionDb(db *sql.DB) *TransactionDB {
 	return &TransactionDB{
-		DB: db,
+		BaseRepository: &BaseRepository{
+			db: db,
+		},
 	}
 }
 
-func (db *TransactionDB) Create(transaction *entity.Transaction) error {
-	stmt, err := db.DB.Prepare("INSERT INTO transactions (id, created_at, amount, account_from_id, account_to_id) VALUES (?, ?, ?, ?, ?)")
+func NewTransactionDbWithTx(tx *sql.Tx) *TransactionDB {
+	return &TransactionDB{
+		BaseRepository: &BaseRepository{
+			tx: tx,
+		},
+	}
+}
+
+func (repo *TransactionDB) Create(transaction *entity.Transaction) error {
+	query := "INSERT INTO transactions (id, created_at, amount, account_from_id, account_to_id) VALUES (?, ?, ?, ?, ?)"
+
+	stmt, err := repo.prepareQuery(query)
 	if err != nil {
 		return err
 	}
-
 	defer stmt.Close()
 
 	_, err = stmt.Exec(transaction.ID, transaction.CreatedAt, transaction.Amount, transaction.AccountFrom.ID, transaction.AccountTo.ID)

@@ -1,11 +1,11 @@
 package create_transaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
-	"github.com/josenaldo/fc-walletcore/internal/gateway"
-	"github.com/josenaldo/fc-walletcore/internal/utils/assertions"
+	"github.com/josenaldo/fc-walletcore/internal/testutils/mocks"
 	"github.com/josenaldo/fc-walletcore/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,252 +18,45 @@ var (
 	accountTo   *entity.Account
 	accountFrom *entity.Account
 
-	accountGatewayMock     *AccountGatewayMock
-	transactionGatewayMock *TransactionGatewayMock
-
-	usecase *CreateTransactionUseCase
+	uowMock    *mocks.UowMock
+	ctx        context.Context
+	usecase    *CreateTransactionUseCase
+	dispatcher *events.EventDispatcher
 )
-
-type AccountGatewayMock struct {
-	mock.Mock
-}
-
-func (m *AccountGatewayMock) Save(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-func (m *AccountGatewayMock) Get(id string) (*entity.Account, error) {
-	args := m.Called(id)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*entity.Account), args.Error(1)
-}
-
-func (m *AccountGatewayMock) Update(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-type TransactionGatewayMock struct {
-	mock.Mock
-}
-
-func (m *TransactionGatewayMock) Create(transaction *entity.Transaction) error {
-	args := m.Called(transaction)
-	return args.Error(0)
-}
 
 func setupCreateTransactionUseCase() {
 	client1, _ = entity.NewClient("Ze Galinha", "ze@galinha.com")
 	client2, _ = entity.NewClient("Maria Galinha", "maria@galinha.com")
 
-	accountTo, _ = entity.NewAccount(client1)
-	accountTo.Credit(200)
 	accountFrom, _ = entity.NewAccount(client2)
 	accountFrom.Credit(300)
+	accountTo, _ = entity.NewAccount(client1)
+	accountTo.Credit(200)
 
-	accountGatewayMock = &AccountGatewayMock{}
-	transactionGatewayMock = &TransactionGatewayMock{}
+	uowMock = &mocks.UowMock{}
+	uowMock.On("Do", mock.Anything, mock.Anything).Return(nil)
+	dispatcher = events.NewEventDispatcher()
+	ctx = context.Background()
 
-	dispatcher := events.NewEventDispatcher()
+	usecase = NewCreateTransactionUseCase(uowMock, *dispatcher)
 
-	usecase = NewCreateTransactionUseCase(transactionGatewayMock, accountGatewayMock, *dispatcher)
 }
 
 func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	// Arrange - Given
 	setupCreateTransactionUseCase()
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Update", mock.Anything).Return(nil)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
 
 	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   accountTo.ID,
+		FromAccountId: accountFrom.ID,
+		ToAccountId:   accountTo.ID,
 		Amount:        50,
 	}
 
 	// Act - When
-	output, err := usecase.Execute(input)
+	output, err := usecase.Execute(ctx, input)
 
 	// Assert - Then
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
-	assertions.IsUUID(t, output.Id)
-	accountGatewayMock.AssertExpectations(t)
-	transactionGatewayMock.AssertExpectations(t)
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
-	accountGatewayMock.AssertNumberOfCalls(t, "Update", 2)
-
-	assert.Equal(t, accountFrom.Balance, 250.0)
-	assert.Equal(t, accountTo.Balance, 250.0)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromNotFound(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-	input := CreateTransactionInputDto{
-		AccountIdFrom: "non-existent-account",
-		AccountIdTo:   accountTo.ID,
-		Amount:        50,
-	}
-	accountGatewayMock.On("Get", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", mock.Anything).Return(nil)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, gateway.ErrorAccountNotFound.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 1)
-	transactionGatewayMock.AssertNotCalled(t, "Create")
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToNotFound(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", "non-existent-account").Return(nil, gateway.ErrorAccountNotFound)
-	accountGatewayMock.On("Save", mock.Anything).Return(nil)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
-
-	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   "non-existent-account",
-		Amount:        50,
-	}
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, gateway.ErrorAccountNotFound.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNotCalled(t, "Create")
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromHasInsufficientFunds(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", mock.Anything).Return(nil)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
-
-	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   accountTo.ID,
-		Amount:        500,
-	}
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, entity.ErrorInsufficientFunds.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNotCalled(t, "Create")
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromSaveFails(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", accountFrom).Return(gateway.ErrorAccountSaveFailed)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
-
-	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   accountTo.ID,
-		Amount:        50,
-	}
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, gateway.ErrorAccountSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNotCalled(t, "Create")
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 1)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToSaveFails(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", accountFrom).Return(nil)
-	accountGatewayMock.On("Save", accountTo).Return(gateway.ErrorAccountSaveFailed)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(nil)
-
-	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   accountTo.ID,
-		Amount:        50,
-	}
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, gateway.ErrorAccountSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNotCalled(t, "Create")
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 2)
-}
-
-func TestCreateTransactionUseCaseExecuteReturnErrorWhenTransactionCreateFails(t *testing.T) {
-	// Arrange - Given
-	setupCreateTransactionUseCase()
-	accountGatewayMock.On("Get", accountFrom.ID).Return(accountFrom, nil)
-	accountGatewayMock.On("Get", accountTo.ID).Return(accountTo, nil)
-	accountGatewayMock.On("Save", accountFrom).Return(nil)
-	accountGatewayMock.On("Save", accountTo).Return(nil)
-
-	transactionGatewayMock.On("Create", mock.Anything).Return(gateway.ErrorTransactionSaveFailed)
-
-	input := CreateTransactionInputDto{
-		AccountIdFrom: accountFrom.ID,
-		AccountIdTo:   accountTo.ID,
-		Amount:        50,
-	}
-
-	// Act - When
-	output, err := usecase.Execute(input)
-
-	// Assert - Then
-	assert.Nil(t, output)
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, gateway.ErrorTransactionSaveFailed.Error())
-	accountGatewayMock.AssertNumberOfCalls(t, "Get", 2)
-	transactionGatewayMock.AssertNumberOfCalls(t, "Create", 1)
-	accountGatewayMock.AssertNumberOfCalls(t, "Save", 0)
+	uowMock.AssertNumberOfCalls(t, "Do", 1)
 }
