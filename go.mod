@@ -3,6 +3,7 @@ module github.com/josenaldo/fc-walletcore
 go 1.22.1
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-sql-driver/mysql v1.8.1
