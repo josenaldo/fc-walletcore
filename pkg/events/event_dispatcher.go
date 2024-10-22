@@ -1,6 +1,9 @@
 package events
 
-import "slices"
+import (
+	"slices"
+	"sync"
+)
 
 // EventDispatcher define um despachante de eventos.
 type EventDispatcher struct {
@@ -75,9 +78,13 @@ func (ed *EventDispatcher) Dispatch(event EventInterface) error {
 		return nil
 	}
 
+	wg := &sync.WaitGroup{}
+
 	for _, handler := range handlers {
-		go handler.Handle(event)
+		wg.Add(1)
+		go handler.Handle(event, wg)
 	}
+	wg.Wait()
 
 	return nil
 }

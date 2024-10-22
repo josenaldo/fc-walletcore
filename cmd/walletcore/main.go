@@ -7,12 +7,14 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/josenaldo/fc-walletcore/internal/database"
+	"github.com/josenaldo/fc-walletcore/internal/event/handler"
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_account"
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_client"
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_transaction"
 	"github.com/josenaldo/fc-walletcore/internal/web"
 	"github.com/josenaldo/fc-walletcore/internal/web/webserver"
 	"github.com/josenaldo/fc-walletcore/pkg/events"
+	"github.com/josenaldo/fc-walletcore/pkg/kafka"
 	"github.com/josenaldo/fc-walletcore/pkg/uow"
 )
 
@@ -49,10 +51,18 @@ func main() {
 		return database.NewTransactionDbWithTx(tx)
 	})
 
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9094",
+		"group.id":          "wallet",
+	}
+	kafkaProducer := kafka.NewProducer(&configMap)
+
+	transactionCreatedKafkaHandler := handler.NewTransactionCreatedKafkaHandler(kafkaProducer)
+
 	fmt.Println("Creating event dispatcher")
 	eventDispatcher := events.NewEventDispatcher()
 
-	// eventDispatcher.Register("TransactionCreated", handler)
+	eventDispatcher.Register("TransactionCreated", transactionCreatedKafkaHandler)
 
 	fmt.Println("Creating use cases")
 	clientDb := database.NewClientDb(db)

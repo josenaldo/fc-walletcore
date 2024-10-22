@@ -1,6 +1,7 @@
 package events
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -39,16 +40,17 @@ type TestEventHandler struct {
 	ID int
 }
 
-func (h *TestEventHandler) Handle(event EventInterface) {
-	// fmt.Printf("Handling event %s with handler %s\n", event.GetName(), h.name)
+func (h *TestEventHandler) Handle(event EventInterface, wg *sync.WaitGroup) {
+	wg.Done()
 }
 
 type MockHandler struct {
 	mock.Mock
 }
 
-func (h *MockHandler) Handle(event EventInterface) {
+func (h *MockHandler) Handle(event EventInterface, wg *sync.WaitGroup) {
 	h.Called(event)
+	wg.Done()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

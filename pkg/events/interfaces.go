@@ -2,6 +2,7 @@ package events
 
 import (
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -29,7 +30,7 @@ type EventInterface interface {
 type EventHandlerInterface interface {
 
 	// Handle processa um evento.
-	Handle(event EventInterface)
+	Handle(event EventInterface, wg *sync.WaitGroup)
 }
 
 // EventDispatcherInterface define a interface para um despachante de eventos.
