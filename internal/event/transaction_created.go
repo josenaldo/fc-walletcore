@@ -2,6 +2,10 @@ package event
 
 import "time"
 
+var (
+	TRANSACTION_CREATED = "Transaction.created"
+)
+
 type TransactionCreated struct {
 	Name      string
 	Payload   interface{}
@@ -10,7 +14,7 @@ type TransactionCreated struct {
 
 func NewTransactionCreated() *TransactionCreated {
 	return &TransactionCreated{
-		Name:      "Transaction.created",
+		Name:      TRANSACTION_CREATED,
 		CreatedAt: time.Now(),
 	}
 }

@@ -47,12 +47,12 @@ Content-Type: application/json
 ###
 
 # Creating a transaction from Maria Galinha to Ze Galinha
-POST http://localhost:8000/transactions HTTP/1.1
+POST http://localhost:8080/transactions HTTP/1.1
 Content-Type: application/json
 
 {
-  "from_account_id": "cfccbab5-8f5b-4170-8c44-6213f6218fb3",
-  "to_account_id": "c6b50a43-4faf-4a96-a1af-daa11b20ea9c",
-  "amount": 100
+  "from_account_id": "d084b021-a469-4376-8d29-3d5f997d104b",
+  "to_account_id": "b9f6de14-e79f-41d3-887f-d21e9c32fc28",
+  "amount": 1
 }
 

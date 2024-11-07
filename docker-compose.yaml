@@ -1,6 +1,7 @@
 services:
   goapp:
     build: .
+    platform: linux/amd64
     volumes:
       - .:/app
     ports:
@@ -9,12 +10,10 @@ services:
   mysql:
     image: mysql:5.7
     platform: linux/amd64
-    container_name: mysql
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
-      MYSQL_PASSWORD: root      
+      MYSQL_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:

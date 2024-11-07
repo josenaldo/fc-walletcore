@@ -4,9 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/josenaldo/fc-walletcore/internal/database"
+	"github.com/josenaldo/fc-walletcore/internal/event"
 	"github.com/josenaldo/fc-walletcore/internal/event/handler"
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_account"
 	"github.com/josenaldo/fc-walletcore/internal/usecase/create_client"
@@ -21,14 +24,15 @@ import (
 func main() {
 
 	// Open up our database connection. Using a connection string, in this case, to connect to a MySQL database.
-	fmt.Println("Starting Wallet Core")
+	log.Print("Starting Wallet Core")
 
-	fmt.Println("Connecting to database")
+	log.Print("Connecting to database")
 	user := "root"
 	password := "root"
-	host := "localhost"
+	host := "mysql"
 	port := "3306"
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/wallet?parseTime=true", user, password, host, port)
+	dbName := "wallet"
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local", user, password, host, port, dbName)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		panic(err)
@@ -36,7 +40,7 @@ func main() {
 
 	defer db.Close()
 
-	fmt.Println("Creating unit of work")
+	log.Print("Creating unit of work")
 	ctx := context.Background()
 	uow := uow.NewUow(ctx, db)
 	uow.Register("ClientDB", func(tx *sql.Tx) interface{} {
@@ -51,20 +55,21 @@ func main() {
 		return database.NewTransactionDbWithTx(tx)
 	})
 
+	log.Print("Creating Kafka producer")
 	configMap := ckafka.ConfigMap{
-		"bootstrap.servers": "kafka:9094",
+		"bootstrap.servers": "kafka:29092",
 		"group.id":          "wallet",
 	}
 	kafkaProducer := kafka.NewProducer(&configMap)
 
 	transactionCreatedKafkaHandler := handler.NewTransactionCreatedKafkaHandler(kafkaProducer)
 
-	fmt.Println("Creating event dispatcher")
+	log.Print("Creating event dispatcher")
 	eventDispatcher := events.NewEventDispatcher()
 
-	eventDispatcher.Register("TransactionCreated", transactionCreatedKafkaHandler)
+	eventDispatcher.Register(event.TRANSACTION_CREATED, transactionCreatedKafkaHandler)
 
-	fmt.Println("Creating use cases")
+	log.Print("Creating use cases")
 	clientDb := database.NewClientDb(db)
 	accountDb := database.NewAccountDb(db)
 
@@ -72,18 +77,20 @@ func main() {
 	createAccountUsecase := create_account.NewCreateAccountUseCase(accountDb, clientDb)
 	createTransactionUsecase := create_transaction.NewCreateTransactionUseCase(uow, *eventDispatcher)
 
-	fmt.Println("Creating web server")
-	webserver := webserver.NewWebServer(":8000")
+	log.Print("Creating web server")
+	webserver := webserver.NewWebServer(":8080")
 
 	clientHandler := web.NewWebClientHandler(*createClientUsecase)
 	accountHandler := web.NewWebAccountHandler(*createAccountUsecase)
 	transactionHandler := web.NewWebTransactionHandler(*createTransactionUsecase)
 
-	fmt.Println("Adding handlers")
+	log.Print("Adding web handlers")
 	webserver.AddHandler("/clients", clientHandler.CreateClient)
 	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
 
-	fmt.Println("Starting web server")
+	log.Print("Starting web server")
 	webserver.Start()
+
+	log.Print("Web server Stopped")
 }

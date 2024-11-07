@@ -1,6 +1,7 @@
 package webserver
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/middleware"
@@ -13,8 +14,7 @@ type WebSerber struct {
 	WerbServerPort string
 }
 
-func NewWebServer(
-	webServerPort string) *WebSerber {
+func NewWebServer(webServerPort string) *WebSerber {
 	return &WebSerber{
 		Router:         chi.NewRouter(),
 		Handlers:       make(map[string]http.HandlerFunc),
@@ -33,5 +33,7 @@ func (s *WebSerber) Start() {
 		s.Router.Post(path, handler)
 	}
 
-	http.ListenAndServe(s.WerbServerPort, s.Router)
+	if err := http.ListenAndServe(s.WerbServerPort, s.Router); err != nil {
+		log.Fatalf("Could not start server: %s\n", err)
+	}
 }

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"fmt"
+	"log"
 	"sync"
 
 	"github.com/josenaldo/fc-walletcore/pkg/events"
@@ -19,7 +19,13 @@ func NewTransactionCreatedKafkaHandler(kafka *kafka.Producer) *TransactionCreate
 }
 
 func (h *TransactionCreatedKafkaHandler) Handle(message events.EventInterface, wg *sync.WaitGroup) {
+	log.Print("Iniciano TransactionCreatedKafkaHandler")
+
 	defer wg.Done()
+
+	log.Print("Publicando mensagem no Kafka")
 	h.Kafka.Publish(message, nil, "transactions")
-	fmt.Println("TransactionCreatedKafkaHandler:", message)
+
+	log.Print("Mensagem publicada no Kafka")
+	log.Print("TransactionCreatedKafkaHandler:", message.GetPayload())
 }
