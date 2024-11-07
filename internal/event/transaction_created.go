@@ -3,7 +3,7 @@ package event
 import "time"
 
 var (
-	TRANSACTION_CREATED = "Transaction.created"
+	TRANSACTION_CREATED_NAME = "Transaction.created"
 )
 
 type TransactionCreated struct {
@@ -14,7 +14,7 @@ type TransactionCreated struct {
 
 func NewTransactionCreated() *TransactionCreated {
 	return &TransactionCreated{
-		Name:      TRANSACTION_CREATED,
+		Name:      TRANSACTION_CREATED_NAME,
 		CreatedAt: time.Now(),
 	}
 }

@@ -2,6 +2,7 @@ package create_transaction
 
 import (
 	"context"
+	"sync"
 	"testing"
 
 	"github.com/josenaldo/fc-walletcore/internal/entity"
@@ -22,6 +23,7 @@ var (
 	ctx        context.Context
 	usecase    *CreateTransactionUseCase
 	dispatcher *events.EventDispatcher
+	wg         sync.WaitGroup
 )
 
 func setupCreateTransactionUseCase() {
@@ -35,6 +37,8 @@ func setupCreateTransactionUseCase() {
 
 	uowMock = &mocks.UowMock{}
 	uowMock.On("Do", mock.Anything, mock.Anything).Return(nil)
+	uowMock.On("GetRepository").Return(nil, nil)
+	uowMock.SetWaitGroup(&wg)
 	dispatcher = events.NewEventDispatcher()
 	ctx = context.Background()
 
@@ -52,11 +56,16 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 		Amount:        50,
 	}
 
+	wg.Add(1)
+
 	// Act - When
 	output, err := usecase.Execute(ctx, input)
+
+	wg.Wait()
 
 	// Assert - Then
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
+
 	uowMock.AssertNumberOfCalls(t, "Do", 1)
 }

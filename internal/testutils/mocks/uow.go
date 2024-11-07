@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+	"sync"
 
 	"github.com/josenaldo/fc-walletcore/pkg/uow"
 	"github.com/stretchr/testify/mock"
@@ -9,6 +10,7 @@ import (
 
 type UowMock struct {
 	mock.Mock
+	wg *sync.WaitGroup
 }
 
 func (m *UowMock) Register(name string, factory uow.RepositoryFactory) {
@@ -26,6 +28,10 @@ func (m *UowMock) GetRepository(ctx context.Context, name string) (interface{}, 
 
 func (m *UowMock) Do(ctx context.Context, fn func(uow *uow.Uow) error) error {
 	args := m.Called(ctx, fn)
+	if m.wg != nil {
+		defer m.wg.Done()
+	}
+
 	return args.Error(0)
 }
 
@@ -37,4 +43,8 @@ func (m *UowMock) Rollback() error {
 func (m *UowMock) CommitOrRollback() error {
 	args := m.Called()
 	return args.Error(0)
+}
+
+func (m *UowMock) SetWaitGroup(wg *sync.WaitGroup) {
+	m.wg = wg
 }

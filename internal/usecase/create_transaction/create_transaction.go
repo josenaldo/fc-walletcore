@@ -25,6 +25,13 @@ type CreateTransactionOutputDto struct {
 	Amount        float64 `json:"amount"`
 }
 
+type BalanceUpdatedOutputDto struct {
+	AccountIdFrom       string  `json:"account_id_from"`
+	AccountIdTo         string  `json:"account_id_to"`
+	BalanceAcountIdFrom float64 `json:"balance_account_id_from"`
+	BalanceAcountIdTo   float64 `json:"balance_account_id_to"`
+}
+
 type CreateTransactionUseCase struct {
 	Uow             uow.UowInterface
 	EventDispatcher events.EventDispatcher
@@ -98,17 +105,28 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 		output.ToAccountId = transaction.AccountTo.ID
 		output.Amount = transaction.Amount
 
+		transactionCreatedEvent := event.NewTransactionCreated()
+		transactionCreatedEvent.SetPayload(output)
+		usecase.EventDispatcher.Dispatch(transactionCreatedEvent)
+
+		balanceUpdatedOutput := &BalanceUpdatedOutputDto{
+			AccountIdFrom:       accountFrom.ID,
+			AccountIdTo:         accountTo.ID,
+			BalanceAcountIdFrom: accountFrom.Balance,
+			BalanceAcountIdTo:   accountTo.Balance,
+		}
+		balanceUpdatedEvent := event.NewBalanceUpdated()
+		balanceUpdatedEvent.SetPayload(balanceUpdatedOutput)
+		usecase.EventDispatcher.Dispatch(balanceUpdatedEvent)
+
 		return nil
 
 	})
+	
 	if err != nil {
 		return nil, err
 	}
 
-	event := event.NewTransactionCreated()
-	event.SetPayload(output)
-
-	usecase.EventDispatcher.Dispatch(event)
 	return output, nil
 }
 

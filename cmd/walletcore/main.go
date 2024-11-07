@@ -63,11 +63,13 @@ func main() {
 	kafkaProducer := kafka.NewProducer(&configMap)
 
 	transactionCreatedKafkaHandler := handler.NewTransactionCreatedKafkaHandler(kafkaProducer)
+	updateBalanceKafkaHandler := handler.NewUpdateBalanceKafkaHandler(kafkaProducer)
 
 	log.Print("Creating event dispatcher")
 	eventDispatcher := events.NewEventDispatcher()
 
-	eventDispatcher.Register(event.TRANSACTION_CREATED, transactionCreatedKafkaHandler)
+	eventDispatcher.Register(event.TRANSACTION_CREATED_NAME, transactionCreatedKafkaHandler)
+	eventDispatcher.Register(event.BALANCE_UPDATED_NAME, updateBalanceKafkaHandler)
 
 	log.Print("Creating use cases")
 	clientDb := database.NewClientDb(db)
