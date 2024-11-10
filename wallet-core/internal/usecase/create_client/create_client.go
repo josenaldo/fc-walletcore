@@ -43,7 +43,7 @@ func (usecase *CreateClientUseCase) Execute(input CreateClientInputDto) (*Create
 	}
 
 	return &CreateClientOutputDto{
-		ID:        client.ID,
+		ID:        client.ID.String(),
 		CreatedAt: client.CreatedAt,
 		UpdateAt:  client.UpdatedAt,
 		Name:      client.Name,

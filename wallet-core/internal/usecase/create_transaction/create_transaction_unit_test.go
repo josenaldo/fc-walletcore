@@ -51,8 +51,8 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 	setupCreateTransactionUseCase()
 
 	input := CreateTransactionInputDto{
-		FromAccountId: accountFrom.ID,
-		ToAccountId:   accountTo.ID,
+		FromAccountId: accountFrom.ID.String(),
+		ToAccountId:   accountTo.ID.String(),
 		Amount:        50,
 	}
 

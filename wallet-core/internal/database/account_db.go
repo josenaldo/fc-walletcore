@@ -27,7 +27,7 @@ func NewAccountDbWithTx(tx *sql.Tx) *AccountDB {
 	}
 }
 
-func (repo *AccountDB) Get(id string) (*entity.Account, error) {
+func (repo *AccountDB) Get(id entity.EntityID) (*entity.Account, error) {
 	query := `
 		SELECT 
 			a.id, 
@@ -54,7 +54,7 @@ func (repo *AccountDB) Get(id string) (*entity.Account, error) {
 	var client entity.Client
 	account.Client = &client
 
-	row := stmt.QueryRow(id)
+	row := stmt.QueryRow(id.String())
 	err = row.Scan(
 		&account.ID,
 		&account.CreatedAt,

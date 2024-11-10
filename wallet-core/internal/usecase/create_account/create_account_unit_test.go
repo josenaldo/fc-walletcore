@@ -15,9 +15,10 @@ import (
 func TestCreateAccountUseCaseExecute(t *testing.T) {
 	// Arrange - Given
 	clientGatewayMock := &mocks.ClientGatewayMock{}
+	clientId := entity.NewEntityID()
 
 	clientGatewayMock.On("Get", mock.Anything).Return(&entity.Client{
-		ID:        "321",
+		ID:        clientId,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Name:      "Zé Galinha",
@@ -29,7 +30,7 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 
 	uc := NewCreateAccountUseCase(accountGatewayMock, clientGatewayMock)
 	intput := CreateAccountInputDto{
-		ClientId: "123",
+		ClientId: clientId.String(),
 	}
 
 	// Act - Whens
@@ -40,7 +41,7 @@ func TestCreateAccountUseCaseExecute(t *testing.T) {
 	assert.NotNil(t, output)
 	assert.NotEmpty(t, output.ID)
 
-	testutils.IsUUID(t, output.ID)
+	testutils.IsULID(t, output.ID)
 
 	clientGatewayMock.AssertExpectations(t)
 	clientGatewayMock.AssertNumberOfCalls(t, "Get", 1)
@@ -58,7 +59,7 @@ func TestCreateAccountUseCaseExecuteWhenClientIsNotFound(t *testing.T) {
 
 	uc := NewCreateAccountUseCase(accountGateway, clientGateway)
 	intput := CreateAccountInputDto{
-		ClientId: "123",
+		ClientId: entity.NewEntityID().String(),
 	}
 
 	// Act - Whens

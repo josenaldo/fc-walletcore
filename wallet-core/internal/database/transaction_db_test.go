@@ -81,10 +81,10 @@ func (s *TransactionDbTestSuite) TestCreate() {
 	err = row.Scan(&id, &createdAt, &amount, &accountFromId, &accountToId)
 
 	s.Nil(err)
-	s.Equal(transaction.ID, id)
+	s.Equal(transaction.ID.String(), id)
 	s.NotEmpty(createdAt)
 	s.Equal(transaction.Amount, amount)
-	s.Equal(transaction.AccountFrom.ID, accountFromId)
-	s.Equal(transaction.AccountTo.ID, accountToId)
+	s.Equal(transaction.AccountFrom.ID.String(), accountFromId)
+	s.Equal(transaction.AccountTo.ID.String(), accountToId)
 
 }

@@ -14,7 +14,7 @@ func (m *ClientGatewayMock) GetAll() ([]*entity.Client, error) {
 	return args.Get(0).([]*entity.Client), args.Error(1)
 }
 
-func (m *ClientGatewayMock) Get(id string) (*entity.Client, error) {
+func (m *ClientGatewayMock) Get(id entity.EntityID) (*entity.Client, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)

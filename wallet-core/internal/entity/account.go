@@ -3,8 +3,6 @@ package entity
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -14,7 +12,7 @@ var (
 )
 
 type Account struct {
-	ID        string
+	ID        EntityID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
@@ -24,7 +22,7 @@ type Account struct {
 
 func NewAccount(client *Client) (*Account, error) {
 	account := &Account{
-		ID:        uuid.NewString(),
+		ID:        NewEntityID(),
 		Client:    client,
 		Balance:   0,
 		CreatedAt: time.Now(),

@@ -3,19 +3,17 @@ package entity
 import (
 	"errors"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
 	ErrorClientNameIsRequired          = errors.New("client name is required")
-	ErrorClientEmailIsRequired         = errors.New("client email is required")	
+	ErrorClientEmailIsRequired         = errors.New("client email is required")
 	ErrorAccountIsRequired             = errors.New("account is required")
 	ErrorAccountBelongsToAnotherClient = errors.New("account must belong to the client")
 )
 
 type Client struct {
-	ID        string
+	ID        EntityID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
@@ -27,7 +25,7 @@ type Client struct {
 func NewClient(name, email string) (*Client, error) {
 
 	client := &Client{
-		ID:        uuid.NewString(),
+		ID:        NewEntityID(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 

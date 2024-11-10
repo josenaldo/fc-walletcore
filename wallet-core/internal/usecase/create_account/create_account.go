@@ -26,7 +26,12 @@ func NewCreateAccountUseCase(accountGateway gateway.AccountGateway, clientGatewa
 }
 
 func (usecase *CreateAccountUseCase) Execute(input CreateAccountInputDto) (*CreateAccountOutputDto, error) {
-	client, err := usecase.ClientGateway.Get(input.ClientId)
+	clientId, err := entity.ParseEntityID(input.ClientId)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := usecase.ClientGateway.Get(clientId)
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +47,6 @@ func (usecase *CreateAccountUseCase) Execute(input CreateAccountInputDto) (*Crea
 	}
 
 	return &CreateAccountOutputDto{
-		ID: account.ID,
+		ID: account.ID.String(),
 	}, nil
 }

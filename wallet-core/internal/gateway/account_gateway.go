@@ -14,7 +14,7 @@ var (
 )
 
 type AccountGateway interface {
-	Get(id string) (*entity.Account, error)
+	Get(id entity.EntityID) (*entity.Account, error)
 	Save(account *entity.Account) error
 	UpdateBalance(account *entity.Account) error
 }

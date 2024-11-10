@@ -70,9 +70,10 @@ func (s *AccountDbTestSuite) TestGetNotFound() {
 	// Arrange - Given
 	account, _ := entity.NewAccount(s.client)
 	s.AccountDb.Save(account)
+	nonExistingId := entity.NewEntityID()
 
 	// Act - When
-	accountFromDb, err := s.AccountDb.Get("non-existing-id")
+	accountFromDb, err := s.AccountDb.Get(nonExistingId)
 
 	// Assert - Then
 	s.Nil(accountFromDb)

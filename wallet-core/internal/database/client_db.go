@@ -57,7 +57,7 @@ func (repo *ClientDb) GetAll() ([]*entity.Client, error) {
 	return clients, nil
 }
 
-func (repo *ClientDb) Get(id string) (*entity.Client, error) {
+func (repo *ClientDb) Get(id entity.EntityID) (*entity.Client, error) {
 	query := "SELECT id, created_at, updated_at, name, email FROM clients WHERE id = ?"
 
 	stmt, err := repo.prepareQuery(query)
@@ -67,7 +67,7 @@ func (repo *ClientDb) Get(id string) (*entity.Client, error) {
 	defer stmt.Close()
 
 	client := &entity.Client{}
-	row := stmt.QueryRow(id)
+	row := stmt.QueryRow(id.String())
 	err = row.Scan(&client.ID, &client.CreatedAt, &client.UpdatedAt, &client.Name, &client.Email)
 	if err != nil {
 		return nil, err

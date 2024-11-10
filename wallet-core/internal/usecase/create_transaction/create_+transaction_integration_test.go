@@ -48,7 +48,7 @@ func (s *CreateTransactionUseCaseTestSuite) SetupSuite() {
 	})
 
 	s.uow.Register("TransactionDB", func(tx *sql.Tx) interface{} {
-		return  database.NewTransactionDbWithTx(tx)
+		return database.NewTransactionDbWithTx(tx)
 	})
 
 	s.eventDispatcher = events.NewEventDispatcher()
@@ -90,8 +90,8 @@ func TestCreateTransactionUseCaseTestSuite(t *testing.T) {
 func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecute() {
 	// Arrange - Given
 	input := CreateTransactionInputDto{
-		FromAccountId: s.fromAccount.ID,
-		ToAccountId:   s.toAccount.ID,
+		FromAccountId: s.fromAccount.ID.String(),
+		ToAccountId:   s.toAccount.ID.String(),
 		Amount:        50,
 	}
 
@@ -118,8 +118,8 @@ func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecute(
 func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountFromNotFound() {
 	// Arrange - Given
 	input := CreateTransactionInputDto{
-		FromAccountId: "non-existent-account",
-		ToAccountId:   s.toAccount.ID,
+		FromAccountId: entity.NewEntityID().String(),
+		ToAccountId:   s.toAccount.ID.String(),
 		Amount:        50,
 	}
 
@@ -136,8 +136,8 @@ func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecuteR
 func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecuteReturnErrorWhenAccountToNotFound() {
 	// Arrange - Given
 	input := CreateTransactionInputDto{
-		FromAccountId: s.fromAccount.ID,
-		ToAccountId:   "non-existent-account",
+		FromAccountId: s.fromAccount.ID.String(),
+		ToAccountId:   entity.NewEntityID().String(),
 		Amount:        50,
 	}
 
@@ -155,8 +155,8 @@ func (s *CreateTransactionUseCaseTestSuite) TestCreateTransactionUseCaseExecuteR
 	// Arrange - Given
 
 	input := CreateTransactionInputDto{
-		FromAccountId: s.fromAccount.ID,
-		ToAccountId:   s.toAccount.ID,
+		FromAccountId: s.fromAccount.ID.String(),
+		ToAccountId:   s.toAccount.ID.String(),
 		Amount:        500,
 	}
 

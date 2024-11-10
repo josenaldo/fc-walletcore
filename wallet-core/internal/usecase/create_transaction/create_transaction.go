@@ -49,8 +49,19 @@ func NewCreateTransactionUseCase(
 
 func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input CreateTransactionInputDto) (*CreateTransactionOutputDto, error) {
 	output := &CreateTransactionOutputDto{}
+	fromAccountId, err := entity.ParseEntityID(input.FromAccountId)
+	if err != nil {
+		return nil, err
+	}
 
-	err := usecase.Uow.Do(ctx, func(uow *uow.Uow) error {
+	toAccountId, err := entity.ParseEntityID(input.ToAccountId)
+	if err != nil {
+		return nil, err
+	}
+
+	amount := input.Amount
+
+	err = usecase.Uow.Do(ctx, func(uow *uow.Uow) error {
 		accountRepository := usecase.getAccountRepository(ctx)
 		transactionRepository := usecase.getTransactionRepository(ctx)
 
@@ -70,17 +81,17 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 
 		fmt.Println("Clients found: ", clients)
 
-		accountFrom, err := accountRepository.Get(input.FromAccountId)
+		accountFrom, err := accountRepository.Get(fromAccountId)
 		if err != nil {
 			return err
 		}
 
-		accountTo, err := accountRepository.Get(input.ToAccountId)
+		accountTo, err := accountRepository.Get(toAccountId)
 		if err != nil {
 			return err
 		}
 
-		transaction, err := entity.NewTransaction(accountFrom, accountTo, input.Amount)
+		transaction, err := entity.NewTransaction(accountFrom, accountTo, amount)
 		if err != nil {
 			return err
 		}
@@ -100,9 +111,9 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 			return err
 		}
 
-		output.Id = transaction.ID
-		output.FromAccountId = transaction.AccountFrom.ID
-		output.ToAccountId = transaction.AccountTo.ID
+		output.Id = transaction.ID.String()
+		output.FromAccountId = transaction.AccountFrom.ID.String()
+		output.ToAccountId = transaction.AccountTo.ID.String()
 		output.Amount = transaction.Amount
 
 		transactionCreatedEvent := event.NewTransactionCreated()
@@ -110,8 +121,8 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 		usecase.EventDispatcher.Dispatch(transactionCreatedEvent)
 
 		balanceUpdatedOutput := &BalanceUpdatedOutputDto{
-			AccountIdFrom:       accountFrom.ID,
-			AccountIdTo:         accountTo.ID,
+			AccountIdFrom:       accountFrom.ID.String(),
+			AccountIdTo:         accountTo.ID.String(),
 			BalanceAcountIdFrom: accountFrom.Balance,
 			BalanceAcountIdTo:   accountTo.Balance,
 		}
@@ -122,7 +133,7 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 		return nil
 
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
