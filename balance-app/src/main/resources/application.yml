@@ -1,0 +1,18 @@
+server:
+  port: 3003
+spring:
+  application:
+    name: fc-walletcore-balance-updater
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mysql://localhost:3307/balances_db
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+
