@@ -1,9 +1,21 @@
-FROM eclipse-temurin:23
-MAINTAINER Josenaldo de Oliveira Matos Filho
+# Stage 1: Build the application
+FROM gradle:8-jdk23 AS build
+WORKDIR /app
+COPY . .
+RUN gradle build --no-daemon -x test
 
-RUN mkdir /opt/app
+# Stage 2: Run the application
+FROM eclipse-temurin:23-jre-alpine
+
 WORKDIR /opt/app
-COPY build/libs/*.jar /opt/app/app.jar
+
+RUN apk add --no-cache curl bash mysql-client 
+
+COPY --from=build /app/build/libs/*.jar /opt/app/app.jar
+
+COPY entrypoint.sh /opt/app/entrypoint.sh
+RUN chmod +x /opt/app/entrypoint.sh
 
 EXPOSE 8080
-CMD ["java", "-jar", "/opt/app/app.jar"]
+
+ENTRYPOINT ["/opt/app/entrypoint.sh"]

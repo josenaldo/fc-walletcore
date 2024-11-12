@@ -8,15 +8,16 @@ services:
     environment:
       - PORT=3003
     depends_on:
-      - mysql
-  mysql:
+      - mysql-balance
+  mysql-balance:
     image: mysql:5.7
     platform: linux/amd64
+    container_name: mysql-balance
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: balances_db
+      MYSQL_DATABASE: balances
       MYSQL_PASSWORD: root
     ports:
       - "3307:3306"
     volumes:
-      - ./.docker/mysql:/var/lib/mysql
+      - ./.docker/mysql-balance:/var/lib/mysql

@@ -6,7 +6,11 @@ services:
     volumes:
       - ./wallet-core:/app
     ports:
-      - 8080:8080
+      - 8080:8080    
+    depends_on:
+      - mysql-wallet
+    networks:
+      - app-network
 
   balanceapp:
     platform: linux/amd64
@@ -16,10 +20,15 @@ services:
       - ./balance-app:/app
     ports:
       - 3003:3003
+    depends_on:
+      - mysql-balance
+    networks:
+      - app-network
 
-  mysql:
+  mysql-wallet:
     image: mysql:5.7
     platform: linux/amd64
+    container_name: mysql-wallet
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
@@ -27,7 +36,24 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./.docker/mysql:/var/lib/mysql
+      - ./.docker/mysql-wallet:/var/lib/mysql
+    networks:
+      - app-network
+  
+  mysql-balance:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: mysql-balance
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: balances
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./.docker/mysql-balance:/var/lib/mysql
+    networks:
+      - app-network
   
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
@@ -79,5 +105,7 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
 
+networks:
+  app-network:
 
     

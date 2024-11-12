@@ -2,14 +2,18 @@ services:
   goapp:
     build: .
     platform: linux/amd64
+    container_name: wallet-core
     volumes:
       - .:/app
     ports:
       - 8080:8080
+    depends_on:
+      - mysql-wallet
 
-  mysql:
+  mysql-wallet:
     image: mysql:5.7
     platform: linux/amd64
+    container_name: mysql-wallet
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
@@ -17,7 +21,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./.docker/mysql:/var/lib/mysql
+      - ./.docker/mysql-wallet:/var/lib/mysql
   
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"
