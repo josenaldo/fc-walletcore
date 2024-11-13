@@ -8,11 +8,11 @@ spring:
     hibernate:
       ddl-auto: none
   datasource:
-    url: jdbc:mysql://mysql-balance:3307/balances
+    url: jdbc:mysql://mysql-balance:3306/balances
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+    continue-on-error: false
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-
 

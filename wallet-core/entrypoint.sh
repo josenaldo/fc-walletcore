@@ -11,7 +11,7 @@ done
 echo "MySQL is up and running."
 
 # Run database migrations
-migrate -path=/app/migrations -database "mysql://root:root@tcp(mysql-wallet:3306)/wallet" -verbose up
+migrate -path=/opt/app/migrations -database "mysql://root:root@tcp(mysql-wallet:3306)/wallet" -verbose up
 
 # Start the application
 /opt/app/wallet-core

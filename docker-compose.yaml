@@ -15,7 +15,7 @@ services:
   balanceapp:
     platform: linux/amd64
     container_name: wallet-core-balanceapp
-    build: ./balance-app    
+    build: ./balance-app
     volumes:
       - ./balance-app:/app
     ports:
@@ -29,10 +29,11 @@ services:
     image: mysql:5.7
     platform: linux/amd64
     container_name: mysql-wallet
+    restart: always
+    tty: true
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wallet
-      MYSQL_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:
@@ -47,7 +48,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: balances
-      MYSQL_PASSWORD: root
     ports:
       - "3307:3306"
     volumes:
@@ -107,5 +107,4 @@ services:
 
 networks:
   app-network:
-
-    
+    driver: bridge

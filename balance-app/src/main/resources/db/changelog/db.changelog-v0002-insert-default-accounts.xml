@@ -7,15 +7,15 @@
     <changeSet id="2" author="Josenaldo de Oliveira Matos Filho">
         <insert tableName="accounts">
             <column name="id" value="01JCBJMXSSV0EGRRJ69ND23NEV" />
-            <column name="created_at" value="2021-08-01T00:00:00" />
-            <column name="updated_at" value="2021-08-01T00:00:00" />
+            <column name="created_at" value="2024-11-11 00:00:00" />
+            <column name="updated_at" value="2024-11-11 00:00:00" />
             <column name="client_id" value="01JCBJNZFP2G6QHBX9MJHDAGR3" />
             <column name="balance" value="1000.00" />
         </insert>
         <insert tableName="accounts">
             <column name="id" value="01JCBJPGHCQA0DJRFAXWE32C68" />
-            <column name="created_at" value="2021-08-01T00:00:00" />
-            <column name="updated_at" value="2021-08-01T00:00:00" />
+            <column name="created_at" value="2024-11-11 00:00:00" />
+            <column name="updated_at" value="2024-11-11 00:00:00" />
             <column name="client_id" value="01JCBJPMXY1H52YGGG5FD328MT" />
             <column name="balance" value="1000.00" />
         </insert>

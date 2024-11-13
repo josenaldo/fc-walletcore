@@ -1,5 +1,5 @@
 server:
-  port: 3003
+  port: 3004
 spring:
   application:
     name: fc-walletcore-balance-updater

@@ -12,12 +12,12 @@ RUN go mod tidy
 RUN go build -o wallet-core ./cmd/walletcore
 
 # Stage 2: Run the application
-FROM alpine:latest
+FROM golang:1.23
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-RUN apk add --no-cache curl bash mysql-client
+RUN apt-get update && apt-get install -y curl bash default-mysql-client dpkg
 
 COPY --from=build /app/wallet-core /opt/app/
 
@@ -26,8 +26,9 @@ COPY internal/database/migrations /opt/app/migrations
 COPY entrypoint.sh /opt/app/
 RUN chmod +x /opt/app/entrypoint.sh
 
-RUN curl -L -o /usr/bin/migrate https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.deb
-RUN chmod +x /usr/bin/migrate
+RUN curl -L -O https://github.com/golang-migrate/migrate/releases/download/v4.18.1/migrate.linux-amd64.deb
+RUN dpkg -i migrate.linux-amd64.deb  
+RUN rm -f migrate.linux-amd64.deb
 
 EXPOSE 8080
 
