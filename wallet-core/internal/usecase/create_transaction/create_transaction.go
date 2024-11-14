@@ -26,10 +26,10 @@ type CreateTransactionOutputDto struct {
 }
 
 type BalanceUpdatedOutputDto struct {
-	AccountIdFrom       string  `json:"account_id_from"`
-	AccountIdTo         string  `json:"account_id_to"`
-	BalanceAcountIdFrom float64 `json:"balance_account_id_from"`
-	BalanceAcountIdTo   float64 `json:"balance_account_id_to"`
+	AccountIdFrom string  `json:"account_id_from"`
+	AccountIdTo   string  `json:"account_id_to"`
+	BalanceFrom   float64 `json:"balance_from"`
+	BalanceTo     float64 `json:"balance_to"`
 }
 
 type CreateTransactionUseCase struct {
@@ -121,10 +121,10 @@ func (usecase *CreateTransactionUseCase) Execute(ctx context.Context, input Crea
 		usecase.EventDispatcher.Dispatch(transactionCreatedEvent)
 
 		balanceUpdatedOutput := &BalanceUpdatedOutputDto{
-			AccountIdFrom:       accountFrom.ID.String(),
-			AccountIdTo:         accountTo.ID.String(),
-			BalanceAcountIdFrom: accountFrom.Balance,
-			BalanceAcountIdTo:   accountTo.Balance,
+			AccountIdFrom: accountFrom.ID.String(),
+			AccountIdTo:   accountTo.ID.String(),
+			BalanceFrom:   accountFrom.Balance,
+			BalanceTo:     accountTo.Balance,
 		}
 		balanceUpdatedEvent := event.NewBalanceUpdated()
 		balanceUpdatedEvent.SetPayload(balanceUpdatedOutput)

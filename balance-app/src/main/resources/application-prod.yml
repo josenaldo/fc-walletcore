@@ -12,7 +12,7 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-    continue-on-error: false
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-
+  kafka:
+    bootstrap-servers: kafka:29092

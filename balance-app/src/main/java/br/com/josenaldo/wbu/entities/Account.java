@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class Account {
 
     @EmbeddedId
+    @AttributeOverride(name = "value", column = @Column(name = "id", nullable = false))
     private EntityId id;
 
     @CreationTimestamp

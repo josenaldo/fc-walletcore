@@ -1,6 +1,7 @@
 package br.com.josenaldo.wbu.entities;
 
 import br.com.josenaldo.wbu.exceptions.InvalidIdException;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.f4b6a3.ulid.Ulid;
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.persistence.Embeddable;
@@ -33,6 +34,7 @@ public class EntityId implements Serializable {
         }
     }
 
+    @JsonValue
     public String getValue() {
         return value;
     }

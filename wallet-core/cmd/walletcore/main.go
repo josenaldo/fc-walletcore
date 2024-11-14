@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"github.com/josenaldo/fc-walletcore/internal/database"
 	"github.com/josenaldo/fc-walletcore/internal/event"
 	"github.com/josenaldo/fc-walletcore/internal/event/handler"
@@ -22,45 +24,26 @@ import (
 )
 
 func main() {
-
-	// Open up our database connection. Using a connection string, in this case, to connect to a MySQL database.
 	log.Print("Starting Wallet Core")
 
-	log.Print("Connecting to database")
-	user := "root"
-	password := "root"
-	host := "mysql"
-	port := "3306"
-	dbName := "wallet"
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local", user, password, host, port, dbName)
-	db, err := sql.Open("mysql", connectionString)
+	// Load environment variables
+	err := loadEnv()
+	if err != nil {
+		log.Fatal("Error loading environment variables" + err.Error())
+	}
+
+	// Connect to database
+	db, err := connectToDatabase()
 	if err != nil {
 		panic(err)
 	}
-
 	defer db.Close()
 
-	log.Print("Creating unit of work")
-	ctx := context.Background()
-	uow := uow.NewUow(ctx, db)
-	uow.Register("ClientDB", func(tx *sql.Tx) interface{} {
-		return database.NewClientDbWithTx(tx)
-	})
+	// Create unit of work
+	uow := createUow(db)
 
-	uow.Register("AccountDB", func(tx *sql.Tx) interface{} {
-		return database.NewAccountDbWithTx(tx)
-	})
-
-	uow.Register("TransactionDB", func(tx *sql.Tx) interface{} {
-		return database.NewTransactionDbWithTx(tx)
-	})
-
-	log.Print("Creating Kafka producer")
-	configMap := ckafka.ConfigMap{
-		"bootstrap.servers": "kafka:29092",
-		"group.id":          "wallet",
-	}
-	kafkaProducer := kafka.NewProducer(&configMap)
+	// Create Kafka producer
+	kafkaProducer := createKafkaProducer()
 
 	transactionCreatedKafkaHandler := handler.NewTransactionCreatedKafkaHandler(kafkaProducer)
 	updateBalanceKafkaHandler := handler.NewUpdateBalanceKafkaHandler(kafkaProducer)
@@ -95,4 +78,99 @@ func main() {
 	webserver.Start()
 
 	log.Print("Web server Stopped")
+}
+
+func loadEnv() error {
+	log.Print("Loading environment variables")
+
+	env := os.Getenv("WALLET_ENV")
+	if "" == env {
+		env = "development"
+	}
+
+	err := godotenv.Load(".env." + env + ".local")
+	if err != nil {
+		log.Print("Error loading .env." + env + ".local file: " + err.Error())
+	}
+
+	if "test" != env {
+		err = godotenv.Load(".env.local")
+		if err != nil {
+			log.Print("Error loading .env.local file: " + err.Error())
+		}
+	}
+
+	err = godotenv.Load(".env." + env)
+	if err != nil {
+		log.Print("Error loading .env." + env + " file: " + err.Error())
+	}
+
+	err = godotenv.Load()
+	if err != nil {
+		log.Print("Error loading .env file" + err.Error())
+		return err
+	} else {
+		log.Print("Environment variables loaded")
+	}
+
+	return nil
+}
+
+func connectToDatabase() (*sql.DB, error) {
+	log.Print("Connecting to database")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_DATABASE")
+
+	log.Print("Creating database connection")
+	log.Print("- Host: " + host)
+	log.Print("- Port: " + port)
+	log.Print("- User: " + user)
+	log.Printf("- Password: %s", "********")
+	log.Print("- Database: " + dbName)
+
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=Local", user, password, host, port, dbName)
+	db, err := sql.Open("mysql", connectionString)
+	return db, err
+}
+
+func createUow(db *sql.DB) *uow.Uow {
+	log.Print("Creating unit of work")
+	ctx := context.Background()
+	uow := uow.NewUow(ctx, db)
+	uow.Register("ClientDB", func(tx *sql.Tx) interface{} {
+		return database.NewClientDbWithTx(tx)
+	})
+
+	uow.Register("AccountDB", func(tx *sql.Tx) interface{} {
+		return database.NewAccountDbWithTx(tx)
+	})
+
+	uow.Register("TransactionDB", func(tx *sql.Tx) interface{} {
+		return database.NewTransactionDbWithTx(tx)
+	})
+
+	return uow
+}
+
+func createKafkaProducer() *kafka.Producer {
+	log.Print("Creating Kafka producer")
+
+	kafkaHost := os.Getenv("KAFKA_HOST")
+	kafkaPort := os.Getenv("KAFKA_PORT")
+	groupId := os.Getenv("KAFKA_GROUP_ID")
+
+	log.Print("- Kafka Host: " + kafkaHost)
+	log.Print("- Kafka Port: " + kafkaPort)
+	log.Print("- Kafka Group ID: " + groupId)
+
+	boostrapServers := kafkaHost + ":" + kafkaPort
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": boostrapServers,
+		"group.id":          groupId,
+	}
+	kafkaProducer := kafka.NewProducer(&configMap)
+	return kafkaProducer
 }

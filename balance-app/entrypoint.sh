@@ -10,5 +10,15 @@ done
 
 echo "MySQL is up and running."
 
+# Wait until Kafka is ready
+echo "Waiting for Kafka to be ready..."
+
+while ! nc -z kafka 29092; do
+  echo "Waiting for kafka..."
+  sleep 2
+done
+
+echo "Kafka is up and running."
+
 # Start the application
 java -jar -Dspring.profiles.active=prod /opt/app/app.jar

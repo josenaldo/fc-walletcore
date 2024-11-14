@@ -12,19 +12,19 @@ Content-Type: application/json
 ###
 
 # Creating Account para Ze Galinha
-# ID criado: cfccbab5-8f5b-4170-8c44-6213f6218fb3
+# ID criado: 01JCBJNZFP2G6QHBX9MJHDAGR3
 POST http://localhost:8000/accounts HTTP/1.1'
 Content-Type: application/json
 
 {
-  "client_id": "c447793e-e985-47a8-b9f8-0da3042615ea"
+  "client_id": "01JCBJNZFP2G6QHBX9MJHDAGR3"
 }
 
 
 ###
 
 # Creating Maria Galinha
-# ID criado: 3e448269-ddb9-481a-a3d2-b0aaed65baae
+# ID criado: 01JCBJPMXY1H52YGGG5FD328MT
 POST http://localhost:8000/clients HTTP/1.1
 Content-Type: application/json
 
@@ -41,7 +41,7 @@ POST http://localhost:8000/accounts HTTP/1.1'
 Content-Type: application/json
 
 {
-  "client_id": "3e448269-ddb9-481a-a3d2-b0aaed65baae"
+  "client_id": "01JCBJPMXY1H52YGGG5FD328MT"
 }
 
 ###
@@ -51,8 +51,8 @@ POST http://localhost:8080/transactions HTTP/1.1
 Content-Type: application/json
 
 {
-  "from_account_id": "d084b021-a469-4376-8d29-3d5f997d104b",
-  "to_account_id": "b9f6de14-e79f-41d3-887f-d21e9c32fc28",
+  "from_account_id": "01JCBJMXSSV0EGRRJ69ND23NEV",
+  "to_account_id": "01JCBJPGHCQA0DJRFAXWE32C68",
   "amount": 1
 }
 

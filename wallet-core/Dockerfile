@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y curl bash default-mysql-client dpkg
 
 COPY --from=build /app/wallet-core /opt/app/
 
+COPY .env.production /opt/app/.env
+
 COPY internal/database/migrations /opt/app/migrations
 
 COPY entrypoint.sh /opt/app/
