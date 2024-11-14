@@ -51,6 +51,7 @@
         - [Resposta](#resposta-4)
   - [Licença](#licença)
   - [Autores](#autores)
+  - [Agradecimentos](#agradecimentos)
 
 ## Descrição
 
@@ -348,7 +349,7 @@ A resposta contém o ID da conta ecém criada.
 
 #### Realiza uma transação
 
-Essa rota permite realizar uma transação financeira entre duas contas, fornecendo os IDs das contas de origem e destino, bem como o valor da transação. 
+Essa rota permite realizar uma transação financeira entre duas contas, fornecendo os IDs das contas de origem e destino, bem como o valor da transação.
 
 ```http
 POST http://localhost:8080/transactions HTTP/1.1
@@ -456,6 +457,11 @@ Distribuído sob a licença [MIT](LICENSE).
 ## Autores
 
 - [Josenaldo Matos](https://www.github.com/josenaldo)
+
+## Agradecimentos
+
+Este projeto foi desenvolvido com base no curso Event Driven Architecture, da FullCycle, que foi ministrado por Wesley Willians. Agradeço a toda a equipe da [FullCycle](https://fullcycle.com.br/) por disponibilizar conteúdos de qualidade e por promover a disseminação de conhecimento na comunidade de desenvolvimento de software.
+
 - [Wesley Willians](https://www.github.com/wesleywillians)
 - [Luiz Carlos](https://www.github.com/argentinaluiz)
-- [Full Cycle](https://www.github.com/codeedu)
+- [Full Cycle](https://fullcycle.com.br/)
