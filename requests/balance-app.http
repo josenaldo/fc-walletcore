@@ -1,0 +1,9 @@
+
+# Consultar saldo da conta 01JCBJMXSSV0EGRRJ69ND23NEV
+GET http://localhost:3003/balances/01JCBJMXSSV0EGRRJ69ND23NEV HTTP/1.1
+
+###
+
+# Consultar a lista de contas
+
+GET http://localhost:3003/balances HTTP/1.1
